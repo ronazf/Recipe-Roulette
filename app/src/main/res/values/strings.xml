@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Recipe\nRoulette</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="find_recipe">Find Recipe</string>
+    <string name="add_item">Add Item</string>
+    <string name="generate_recipe">Generate</string>
+    <string name="logo_description">
+        <a href="https://www.flaticon.com/free-icons/chef-hat" title="chef hat icons">
+            Chef hat icons created by Those Icons - Flaticon
+        </a>
+    </string>
+    <string name="remove">Remove</string>
+    <string name="plus_button_description">Plus Button</string>
+    <string name="expand_more">Expand more icon</string>
+    <string name="expand_less">Expand less icon</string>
+    <string name="ingredient_already_selected">This ingredient has already been added to your list.</string>
+    <string name="shelf_animation">
+        <a href="https://lordicon.com/">Animated icons by Lordicon.com</a>
+    </string>
+    <string name="apple_animation">
+        <a href="https://lordicon.com/">Animated icons by Lordicon.com</a>
+    </string>
+    <string name="grocery_bag_animation">
+        <a href="https://lordicon.com/">Animated icons by Lordicon.com</a>
+    </string>
+</resources>
