@@ -59,12 +59,13 @@ class IngredientsRepositoryImpl @Inject constructor(
             "only consist of the id number corresponding " +
             "to the category you've chosen (i.e. category:1)): " + categories
 
-    override fun getIngredients(filter: Filter): Flow<List<Ingredient>> {
+    override fun getIngredients(filter: Filter, searchText: String): Flow<List<Ingredient>> {
         return ingredientsDao.getIngredients(
             isVegetarian = filter.vegetarian,
             isPescatarian = filter.pescatarian,
             isNutFree = filter.nutFree,
-            isDairyFree = filter.dairyFree
+            isDairyFree = filter.dairyFree,
+            searchText = searchText
         ).flowOn(ioDispatcher)
     }
 

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetIngredientsUC @Inject constructor(
     private val ingredientsRepository: IngredientsRepository
 ) {
-    operator fun invoke(filter: Filter = Filter()): Flow<List<Ingredient>> {
-        return ingredientsRepository.getIngredients(filter)
+    operator fun invoke(filter: Filter = Filter(), searchText: String = ""): Flow<List<Ingredient>> {
+        return ingredientsRepository.getIngredients(filter, searchText)
     }
 }

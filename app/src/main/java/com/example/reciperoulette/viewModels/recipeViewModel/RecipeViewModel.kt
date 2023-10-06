@@ -1,9 +1,8 @@
 package com.example.reciperoulette.viewModels.recipeViewModel
 
-import androidx.compose.runtime.mutableStateListOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientEvent
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientState
 import com.example.reciperoulette.api.response.Resource
@@ -21,6 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+// TODO: check state race condition with multiple updates
 class RecipeViewModel @Inject constructor(
     private val recipeRepo: RecipeRepositoryImpl,
     private val ingredientUC: IngredientsUseCases
@@ -31,8 +31,6 @@ class RecipeViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(IngredientState())
     val state : StateFlow<IngredientState> = _state
-
-    val selectedIngredients: MutableList<String> = mutableStateListOf()
 
     init {
         _state.update {
@@ -47,7 +45,7 @@ class RecipeViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         verifyingIngredient = true,
-                        searchName = event.name
+                        ingredientName = event.name
                     )
                 }
                 verifyIngredient()
@@ -59,10 +57,42 @@ class RecipeViewModel @Inject constructor(
                         loading = true
                     )
                 }
-                getIngredients(event.filter)
+                getIngredients()
             }
             is IngredientEvent.RemoveIngredient -> {
                 deleteIngredient(event.ingredient)
+            }
+
+            is IngredientEvent.SelectIngredient -> {
+                val updatedSelection = _state.value.selectedIngredients.toMutableList()
+                updatedSelection.add(event.name)
+                updatedSelection.sort()
+                _state.update { it.copy(
+                    selectedIngredients = updatedSelection.toList()
+                ) }
+            }
+
+            is IngredientEvent.RemoveSelectedIngredient -> {
+                val updatedSelection = _state.value.selectedIngredients.toMutableList()
+                updatedSelection.remove(event.name)
+                updatedSelection.sort()
+                _state.update { it.copy(
+                    selectedIngredients = updatedSelection.toList()
+                ) }
+            }
+
+            is IngredientEvent.SearchIngredient -> {
+                _state.update { it.copy(
+                    searchText = event.searchText
+                ) }
+                getIngredients()
+            }
+
+            IngredientEvent.ClearSearch -> {
+                _state.update { it.copy(
+                    searchText = ""
+                ) }
+                getIngredients()
             }
 
             IngredientEvent.ClearError -> {
@@ -73,20 +103,28 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    private fun getIngredients(filter: Filter = Filter()) {
+    private fun getIngredients() {
         viewModelScope.launch {
-            ingredientUC.getIngredients(filter)
+            ingredientUC.getIngredients(_state.value.filter, _state.value.searchText)
                 .collect { ingredientList ->
                 _state.update {
-                    it.copy(
-                        loading = false,
-                        ingredients = ingredientList
-                            .groupBy { ingredient ->
-                                CategoryDetail.values().find { category ->
-                                    category.id == ingredient.categoryId.toInt()
-                                } ?: throw InvalidCategoryException("")
-                            }
-                    )
+                    if (_state.value.searchText.isEmpty()) {
+                        it.copy(
+                            loading = false,
+                            mappedIngredients = ingredientList
+                                .groupBy { ingredient ->
+                                    CategoryDetail.values().find { category ->
+                                        category.id == ingredient.categoryId.toInt()
+                                    } ?: throw InvalidCategoryException("")
+                                }
+                        )
+                    } else {
+                        Log.d("Succss", ingredientList.toString())
+                        it.copy(
+                            loading = false,
+                            ingredients = ingredientList
+                        )
+                    }
                 }
             }
         }
@@ -95,20 +133,20 @@ class RecipeViewModel @Inject constructor(
     private fun upsertIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
             ingredientUC.upsertIngredient(ingredient)
-            getIngredients(_state.value.filter)
+            getIngredients()
         }
     }
 
     private fun deleteIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
             ingredientUC.deleteIngredient(ingredient)
-            getIngredients(_state.value.filter)
+            getIngredients()
         }
     }
 
     private fun verifyIngredient() {
         viewModelScope.launch {
-            val response = ingredientUC.validateIngredient(_state.value.searchName)
+            val response = ingredientUC.validateIngredient(_state.value.ingredientName)
             response.onEach {
                 when (it) {
                     is Resource.Error -> {
@@ -145,7 +183,7 @@ class RecipeViewModel @Inject constructor(
     private fun getRecipe() {
         viewModelScope.launch {
             val response = recipeRepo.getRecipe(
-                selectedIngredients
+                _state.value.selectedIngredients
             )
         }
     }

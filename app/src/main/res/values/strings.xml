@@ -23,4 +23,7 @@
     <string name="grocery_bag_animation">
         <a href="https://lordicon.com/">Animated icons by Lordicon.com</a>
     </string>
+    <string name="search_description">Search icon</string>
+    <string name="close_description">Close icon</string>
+    <string name="search_ingredient">Search Ingredient</string>
 </resources>

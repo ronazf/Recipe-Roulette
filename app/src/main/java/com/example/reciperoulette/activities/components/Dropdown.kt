@@ -23,26 +23,31 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.recipeGeneratorActivity.RecipeGeneratorActivity
+import com.example.reciperoulette.database.ingredients.CategoryDetail
+import com.example.reciperoulette.database.ingredients.entities.Ingredient
 
 @Composable
 fun Dropdown(
     modifier: Modifier,
     name: String,
-    itemLevel: Boolean,
-    colorResource: Color,
+    isLastLevel: Boolean,
+    color: Color,
     shape: Shape,
+    searchable: Boolean = false,
+    searchResult: ((String) -> Unit)? = null,
+    clearSearch: (() -> Unit)? = null,
     content: @Composable (() -> Unit) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val vector = if (isExpanded) R.drawable.expand_less else R.drawable.expand_more
     val vectorDescription = if (isExpanded) R.string.expand_less else R.string.expand_more
-
 
     Column(
         modifier = modifier,
@@ -56,11 +61,11 @@ fun Dropdown(
                     elevation = RecipeGeneratorActivity.DROP_SHADOW_ELEVATION,
                     shape = shape
                 )
-                .clip(RectangleShape)
                 .clip(shape = shape)
-                .background(colorResource)
-                .clickable
-                { isExpanded = !isExpanded },
+                .background(color)
+                .clickable {
+                    isExpanded = !isExpanded
+                },
         ) {
             Text(
                 modifier = Modifier
@@ -71,18 +76,6 @@ fun Dropdown(
                 fontSize = RecipeGeneratorActivity.ITEM_TEXT_FONT_SIZE,
                 fontFamily = FontFamily(Font(R.font.judson_regular))
             )
-            if (!itemLevel) {
-                DropdownMenu(
-                    modifier = Modifier
-                        .fillMaxWidth(RecipeGeneratorActivity.ROW_ITEM_WIDTH)
-                        .align(Alignment.Center)
-                        .heightIn(max = RecipeGeneratorActivity.MAX_DROPDOWN_HEIGHT),
-                    expanded = isExpanded,
-                    onDismissRequest = { isExpanded = false }
-                ) {
-                    content { isExpanded = false }
-                }
-            }
             Image(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
@@ -90,9 +83,87 @@ fun Dropdown(
                 painter = painterResource(id = vector),
                 contentDescription = stringResource(id = vectorDescription)
             )
+            if (isLastLevel) {
+                return@Box
+            }
+            if (isExpanded) {
+                DropdownMenu(
+                    modifier = Modifier
+                        .fillMaxWidth(RecipeGeneratorActivity.ROW_ITEM_WIDTH)
+                        .align(Alignment.Center)
+                        .heightIn(max = RecipeGeneratorActivity.MAX_DROPDOWN_HEIGHT),
+                    expanded = isExpanded,
+                    onDismissRequest = {
+                        isExpanded = false
+                        clearSearch?.invoke()
+                    }
+                ) {
+                    if (searchable) {
+                        SearchTab(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = colorResource(id = R.color.white)
+                        ) {
+                            searchResult?.invoke(it)
+                        }
+                    }
+                    content {
+                        isExpanded = false
+                        clearSearch?.invoke()
+                    }
+                }
+            }
         }
     }
-    if (itemLevel && isExpanded) {
-        content { isExpanded = false }
+    if ((isLastLevel) && isExpanded) {
+        content {
+            isExpanded = false
+            clearSearch?.invoke()
+        }
     }
+}
+
+@Composable
+fun LayeredDropdown(
+    modifier: Modifier,
+    entry: Map.Entry<CategoryDetail, List<Ingredient>>,
+    selectedItems: List<String>,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dropdown(
+        modifier = modifier.fillMaxWidth(),
+        name = entry.key.strName,
+        isLastLevel = true,
+        color = colorResource(id = R.color.white),
+        shape = RectangleShape,
+        content = {
+            entry.value.forEach {
+                InnerDropdown(
+                    modifier = modifier,
+                    name = it.ingredientName,
+                    selectedItems = selectedItems,
+                    onSelect = onSelect,
+                    onDismiss = onDismiss
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun InnerDropdown(
+    modifier: Modifier,
+    name: String,
+    selectedItems: List<String>,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    DropDownItem(
+        modifier = modifier.fillMaxWidth(),
+        name = name,
+        selectedItems = selectedItems,
+        onSelect = onSelect,
+        closeDropDown = { onDismiss.invoke() },
+        duplicateWarningResource = R.string.ingredient_already_selected
+    )
 }

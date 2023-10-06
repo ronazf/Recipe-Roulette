@@ -16,13 +16,18 @@ interface IngredientsDao {
             "WHERE (NOT :isVegetarian OR ingredients.is_vegetarian = :isVegetarian) AND " +
             "(NOT :isPescatarian OR ingredients.is_pescatarian = :isPescatarian) AND " +
             "(NOT :isNutFree OR ingredients.is_nut_free = :isNutFree) AND " +
-            "(NOT :isDairyFree OR ingredients.is_dairy_free = :isDairyFree) " +
-            "ORDER BY ingredients.category_id ASC, ingredients.ingredient_name ASC")
+            "(NOT :isDairyFree OR ingredients.is_dairy_free = :isDairyFree) AND " +
+            "ingredient_name LIKE '%' || :searchText || '%'" +
+            "ORDER BY " +
+            "   CASE" +
+            "       WHEN LENGTH(:searchText) = 0 THEN ingredients.category_id END ASC, " +
+            "ingredients.ingredient_name ASC")
     fun getIngredients(
         isVegetarian: Boolean,
         isPescatarian: Boolean,
         isNutFree: Boolean,
-        isDairyFree: Boolean
+        isDairyFree: Boolean,
+        searchText: String
     ): Flow<List<Ingredient>>
 
     @Upsert

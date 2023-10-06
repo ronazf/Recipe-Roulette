@@ -25,7 +25,8 @@ import com.example.reciperoulette.activities.recipeGeneratorActivity.RecipeGener
 fun DropDownItem(
     modifier: Modifier,
     name: String,
-    selectedItems: MutableList<String>,
+    selectedItems: List<String>,
+    onSelect: (String) -> Unit,
     closeDropDown: () -> Unit,
     duplicateWarningResource: Int
 ) {
@@ -63,7 +64,7 @@ fun DropDownItem(
                         )
                         return@DropdownMenuItem
                     }
-                    selectedItems.add(name)
+                    onSelect(name)
                     closeDropDown()
                 }
             ) {}

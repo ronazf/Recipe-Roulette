@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IngredientsRepository {
 
-    fun getIngredients(filter: Filter): Flow<List<Ingredient>>
+    fun getIngredients(filter: Filter, searchText: String = ""): Flow<List<Ingredient>>
 
     suspend fun upsertIngredient(ingredient: Ingredient)
 
