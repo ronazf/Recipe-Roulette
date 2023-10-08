@@ -2,14 +2,14 @@
     <string name="app_name">Recipe\nRoulette</string>
     <string name="ingredients">Ingredients</string>
     <string name="find_recipe">Find Recipe</string>
-    <string name="add_item">Add Item</string>
+    <string name="add_ingredient">Add Ingredient</string>
     <string name="generate_recipe">Generate</string>
     <string name="logo_description">
         <a href="https://www.flaticon.com/free-icons/chef-hat" title="chef hat icons">
             Chef hat icons created by Those Icons - Flaticon
         </a>
     </string>
-    <string name="remove">Remove</string>
+    <string name="delete">Delete icon</string>
     <string name="plus_button_description">Plus Button</string>
     <string name="expand_more">Expand more icon</string>
     <string name="expand_less">Expand less icon</string>
@@ -26,4 +26,26 @@
     <string name="search_description">Search icon</string>
     <string name="close_description">Close icon</string>
     <string name="search_ingredient">Search Ingredient</string>
+    <string name="add_custom_ingredient">Add Custom Ingredient</string>
+    <string name="add_icon">Add icon</string>
+    <string name="add_shopping_cart">Add to shopping cart icon</string>
+    <string name="remove_shopping_cart">Remove from shopping cart icon</string>
+    <string name="add_ingredient_dialog">Custom Ingredient</string>
+    <string name="ingredient_name">Ingredient Name</string>
+    <string name="verify_ingredient">Verify</string>
+    <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="error">Error icon</string>
+    <string name="error_occured">Error</string>
+    <string name="success">Success icon</string>
+    <string name="process_succeeded">Success</string>
+    <string name="remove">Remove icon</string>
+    <string name="confirm">Confirm</string>
+    <string name="remove_ingredient">Remove Ingredient</string>
+    <string name="confirm_remove_ingredient">Are you sure you want to permanently remove the
+        following ingredient?</string>
+    <string name="filter">Filter icon</string>
+    <string name="home_background">Chef image</string>
+    <string name="arrange">Arranging image</string>
+    <string name="loading">Loading...</string>
 </resources>

@@ -28,9 +28,11 @@ abstract class ApiHandleRepository (
             try {
                 val response = apiPostReq(userData)
                 if (response.isSuccessful) {
-                    Resource.Success(response.body())
+                    response.body()?.let {
+                        return@withContext Resource.Success(it)
+                    }
                 }
-                Resource.Error("")
+                Resource.Error(response.message())
             } catch (e: HttpException) {
                 Resource.Error(e.localizedMessage ?: UNEXPECTED_ERROR)
             } catch (e: IOException) {

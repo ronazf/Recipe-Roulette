@@ -14,7 +14,6 @@ import com.example.reciperoulette.use_case.ingredientsUC.IngredientsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,13 +23,16 @@ import javax.inject.Inject
 class RecipeViewModel @Inject constructor(
     private val recipeRepo: RecipeRepositoryImpl,
     private val ingredientUC: IngredientsUseCases
-): ViewModel() {
+) : ViewModel() {
     companion object {
         const val UNKNOWN_ERROR = "An unknown error has occurred."
+        const val DUPLICATE_INGREDIENT = "This ingredient is already in your ingredient list."
+        const val INGREDIENT_ADDED =
+            "Custom ingredient was successfully added to your ingredient list."
     }
 
     private val _state = MutableStateFlow(IngredientState())
-    val state : StateFlow<IngredientState> = _state
+    val state: StateFlow<IngredientState> = _state
 
     init {
         _state.update {
@@ -50,55 +52,78 @@ class RecipeViewModel @Inject constructor(
                 }
                 verifyIngredient()
             }
+
             is IngredientEvent.FilterIngredients -> {
                 _state.update {
                     it.copy(
-                        filter = event.filter,
-                        loading = true
+                        filter = event.filter
                     )
                 }
                 getIngredients()
             }
+
             is IngredientEvent.RemoveIngredient -> {
-                deleteIngredient(event.ingredient)
+                _state.value.ingredients.find {
+                    it.ingredientName == event.ingredientName
+                }?.let {
+                    deleteIngredient(it)
+                }
             }
 
             is IngredientEvent.SelectIngredient -> {
                 val updatedSelection = _state.value.selectedIngredients.toMutableList()
                 updatedSelection.add(event.name)
                 updatedSelection.sort()
-                _state.update { it.copy(
-                    selectedIngredients = updatedSelection.toList()
-                ) }
+                _state.update {
+                    it.copy(
+                        selectedIngredients = updatedSelection.toList()
+                    )
+                }
             }
 
             is IngredientEvent.RemoveSelectedIngredient -> {
                 val updatedSelection = _state.value.selectedIngredients.toMutableList()
                 updatedSelection.remove(event.name)
                 updatedSelection.sort()
-                _state.update { it.copy(
-                    selectedIngredients = updatedSelection.toList()
-                ) }
+                _state.update {
+                    it.copy(
+                        selectedIngredients = updatedSelection.toList()
+                    )
+                }
             }
 
             is IngredientEvent.SearchIngredient -> {
-                _state.update { it.copy(
-                    searchText = event.searchText
-                ) }
+                _state.update {
+                    it.copy(
+                        searchText = event.searchText
+                    )
+                }
                 getIngredients()
             }
 
             IngredientEvent.ClearSearch -> {
-                _state.update { it.copy(
-                    searchText = ""
-                ) }
+                _state.update {
+                    it.copy(
+                        searchText = ""
+                    )
+                }
                 getIngredients()
             }
 
             IngredientEvent.ClearError -> {
-                _state.update { it.copy(
-                    error = ""
-                ) }
+                _state.update {
+                    it.copy(
+                        error = ""
+                    )
+                }
+            }
+
+            IngredientEvent.ClearSuccess -> {
+                _state.update {
+                    it.copy(
+                        success = ""
+                    )
+                }
             }
         }
     }
@@ -107,10 +132,10 @@ class RecipeViewModel @Inject constructor(
         viewModelScope.launch {
             ingredientUC.getIngredients(_state.value.filter, _state.value.searchText)
                 .collect { ingredientList ->
-                _state.update {
-                    if (_state.value.searchText.isEmpty()) {
+                    _state.update {
                         it.copy(
                             loading = false,
+                            ingredients = ingredientList,
                             mappedIngredients = ingredientList
                                 .groupBy { ingredient ->
                                     CategoryDetail.values().find { category ->
@@ -118,15 +143,8 @@ class RecipeViewModel @Inject constructor(
                                     } ?: throw InvalidCategoryException("")
                                 }
                         )
-                    } else {
-                        Log.d("Succss", ingredientList.toString())
-                        it.copy(
-                            loading = false,
-                            ingredients = ingredientList
-                        )
                     }
                 }
-            }
         }
     }
 
@@ -139,6 +157,7 @@ class RecipeViewModel @Inject constructor(
 
     private fun deleteIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
+            Log.d("success", "removing ingredient: " + ingredient)
             ingredientUC.deleteIngredient(ingredient)
             getIngredients()
         }
@@ -146,8 +165,19 @@ class RecipeViewModel @Inject constructor(
 
     private fun verifyIngredient() {
         viewModelScope.launch {
-            val response = ingredientUC.validateIngredient(_state.value.ingredientName)
-            response.onEach {
+            if (_state.value.ingredients
+                    .map { it.ingredientName.lowercase() }
+                    .contains(_state.value.ingredientName.lowercase())
+            ) {
+                _state.update { ingredientState ->
+                    ingredientState.copy(
+                        verifyingIngredient = false,
+                        error = DUPLICATE_INGREDIENT
+                    )
+                }
+                return@launch
+            }
+            ingredientUC.validateIngredient(_state.value.ingredientName).collect {
                 when (it) {
                     is Resource.Error -> {
                         _state.update { ingredientState ->
@@ -157,6 +187,7 @@ class RecipeViewModel @Inject constructor(
                             )
                         }
                     }
+
                     is Resource.Loading -> {
                         if (!_state.value.verifyingIngredient) {
                             _state.update { ingredientState ->
@@ -166,14 +197,17 @@ class RecipeViewModel @Inject constructor(
                             }
                         }
                     }
+
                     is Resource.Success -> {
-                        _state.update {ingredientState ->
+                        _state.update { ingredientState ->
                             ingredientState.copy(
                                 verifyingIngredient = false,
-                                loading = true
+                                success = INGREDIENT_ADDED
                             )
                         }
-                        it.data?.let { ingredient -> upsertIngredient(ingredient) }
+                        it.data?.let { ingredient ->
+                            upsertIngredient(ingredient)
+                        }
                     }
                 }
             }

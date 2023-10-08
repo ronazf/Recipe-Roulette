@@ -1,6 +1,5 @@
 package com.example.reciperoulette.activities.recipeGeneratorActivity.userActions
 
-import androidx.compose.runtime.mutableStateListOf
 import com.example.reciperoulette.database.ingredients.CategoryDetail
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 import java.util.EnumMap
@@ -14,5 +13,6 @@ data class IngredientState(
     val loading: Boolean = false,
     val verifyingIngredient: Boolean = false,
     val ingredientName: String = "",
-    val error: String = ""
+    val error: String = "",
+    val success: String = ""
 )

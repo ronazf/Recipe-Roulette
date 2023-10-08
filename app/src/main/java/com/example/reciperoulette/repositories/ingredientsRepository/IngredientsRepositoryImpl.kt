@@ -6,7 +6,6 @@ import com.example.reciperoulette.api.request.Message
 import com.example.reciperoulette.api.request.Request
 import com.example.reciperoulette.api.response.Completion
 import com.example.reciperoulette.api.response.Resource
-import com.example.reciperoulette.api.response.ingredientValidation.Separators
 import com.example.reciperoulette.database.ingredients.CategoryDetail
 import com.example.reciperoulette.database.ingredients.IngredientDetail
 import com.example.reciperoulette.database.ingredients.dao.IngredientsDao
@@ -32,32 +31,25 @@ class IngredientsRepositoryImpl @Inject constructor(
     private val trueFalseNA = "with true or false or N/A (only answer with N/A if you answered" +
             "the previous question as false). "
     private val keyVal = "For key named (name in quotes) "
-    private val categories = enumValues<CategoryDetail>().forEachIndexed { index, categoryDetail ->
-        if (index != CategoryDetail.values().size - 1) {
-            "${categoryDetail.strName} with id ${categoryDetail.id}, "
-        } else {
-            "${categoryDetail.strName} with id ${categoryDetail.id}."
-        }
-    }
-    private val verifyIngredientReq = "Your task is to return a list of key value pairs where each " +
-            "key is separated from the value by the following character (character in quotes) \"${Separators.KEY_VAL_SEPARATOR}\" " +
-            "and each item in the list is separated by the following character (character in quotes) \"${Separators.PAIR_SEPARATOR}\"." +
-            keyVal +  "\"${IngredientDetail.NAME.strName}\"" + answer + ". What is the name of the ingredient inputted?" +
-            keyVal + "\"${IngredientDetail.IS_INGREDIENT.strName}\"" + answer + trueFalse +
+    private val verifyIngredientReq = "Your task is to return a list of key value pairs. " +
+            keyVal +  "\"${IngredientDetail.NAME.strName}\" " + answer +
+            ". What is the name of the ingredient inputted?" +
+            keyVal + "\"${IngredientDetail.IS_INGREDIENT.strName}\" " + answer + trueFalse +
             "Is the following item considered to be an edible cooking/baking ingredient? " +
-            keyVal + "\"${IngredientDetail.IS_VEGETARIAN.strName}\"" + answer + trueFalseNA +
+            keyVal + "\"${IngredientDetail.IS_VEGETARIAN.strName}\" " + answer + trueFalseNA +
             "Is it vegetarian?" +
-            keyVal + "\"${IngredientDetail.IS_PESCATARIAN.strName}\"" + answer + trueFalseNA +
+            keyVal + "\"${IngredientDetail.IS_PESCATARIAN.strName}\" " + answer + trueFalseNA +
             "Is it pescatarian?" +
-            keyVal + "\"${IngredientDetail.IS_NUT_FREE.strName}\"" + answer + trueFalseNA +
+            keyVal + "\"${IngredientDetail.IS_NUT_FREE.strName}\" " + answer + trueFalseNA +
             "Is it nut free?" +
-            keyVal + "\"${IngredientDetail.IS_DAIRY_FREE.strName}\"" + answer + trueFalseNA +
+            keyVal + "\"${IngredientDetail.IS_DAIRY_FREE.strName}\" " + answer + trueFalseNA +
             "Is it dairy free?" +
             "Additionally, if it is an ingredient, under what category is it labeled?" +
             keyVal + "\"${IngredientDetail.CATEGORY.strName}\" " +
             "choose from the following categories (the value you return for this key must " +
             "only consist of the id number corresponding " +
-            "to the category you've chosen (i.e. category:1)): " + categories
+            "to the category you've chosen (i.e. category:1)): " + getCategories() + ".\n" +
+            "Please only return the key value pairs in JSON format."
 
     override fun getIngredients(filter: Filter, searchText: String): Flow<List<Ingredient>> {
         return ingredientsDao.getIngredients(
@@ -82,9 +74,21 @@ class IngredientsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun validateIngredient(ingredient: String): Resource<Completion> {
-        val reqContent = "$verifyIngredientReq\n$ingredient"
+        val reqContent = "$verifyIngredientReq\nitem name is (either ingredient or not): $ingredient"
         val request = Request(messages = arrayOf(Message(content = reqContent)))
         val apiPostReqFunc: ApiPostReqFunc<Completion> = { req -> recipeApi.getData(req) }
         return apiPostReq(apiPostReqFunc, request)
+    }
+
+    private fun getCategories(): String {
+        var categories = ""
+        enumValues<CategoryDetail>().forEachIndexed { index, categoryDetail ->
+            categories += if (index != CategoryDetail.values().size - 1) {
+                "${categoryDetail.strName} with id ${categoryDetail.id}, "
+            } else {
+                "${categoryDetail.strName} with id ${categoryDetail.id}."
+            }
+        }
+        return categories
     }
 }

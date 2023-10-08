@@ -5,33 +5,50 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.reciperoulette.R
-import com.example.reciperoulette.activities.components.Dropdown
+import com.example.reciperoulette.activities.components.image.components.BackgroundImage
+import com.example.reciperoulette.activities.components.alertDialog.components.InputAlertDialog
+import com.example.reciperoulette.activities.components.dropdown.components.Dropdown
+import com.example.reciperoulette.activities.components.alertDialog.components.ErrorAlertDialog
 import com.example.reciperoulette.activities.components.GenericBtn
-import com.example.reciperoulette.activities.components.InnerDropdown
+import com.example.reciperoulette.activities.components.dropdown.components.InnerDropdown
 import com.example.reciperoulette.activities.components.ItemRow
-import com.example.reciperoulette.activities.components.LayeredDropdown
+import com.example.reciperoulette.activities.components.dropdown.components.LayeredDropdown
+import com.example.reciperoulette.activities.components.Loading
+import com.example.reciperoulette.activities.components.alertDialog.components.SuccessAlertDialog
 import com.example.reciperoulette.activities.components.Title
 import com.example.reciperoulette.activities.homeActivity.HomeActivity
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientEvent
@@ -54,9 +71,6 @@ class RecipeGeneratorActivity : ComponentActivity() {
         val ITEM_SIZE = 45.dp
         val IMAGE_TEXT_PADDING = 10.dp
         val ITEM_ROW_MARGIN = 4.dp
-        val MAX_DROPDOWN_HEIGHT = 350.dp
-        val DROP_SHADOW_ELEVATION = 8.dp
-        val PREVIEW_SELECTED_ITEMS = listOf("Carrot", "Beef Broth", "Potatoes")
         const val ROW_ITEM_WIDTH = 0.75F
         const val CORNER_ROUNDING = 35
     }
@@ -71,7 +85,7 @@ class RecipeGeneratorActivity : ComponentActivity() {
             RecipeRuletteTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     RenderScreen(
                         state,
@@ -84,15 +98,19 @@ class RecipeGeneratorActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RenderScreen(
     state: IngredientState,
     onIngredientEvent: (IngredientEvent) -> Unit
 ) {
     val context = LocalContext.current
+    var closeDropdown by remember { mutableStateOf(false) }
 
-    ConstraintLayout {
-        val (title, ingredients, generateBtn, dropDown) = createRefs()
+    ConstraintLayout(
+        modifier = Modifier.pointerInteropFilter { state.loading || state.verifyingIngredient }
+    ) {
+        val (title, ingredients, generateBtn, dropDown, backgroundImage) = createRefs()
 
         Title(
             modifier = Modifier.constrainAs(title) {
@@ -110,6 +128,7 @@ fun RenderScreen(
                 absoluteRight.linkTo(parent.absoluteRight)
             },
             searchText = state.searchText,
+            closeDropdown = closeDropdown,
             ingredients = state.ingredients,
             ingredientMap = state.mappedIngredients,
             selectedIngredients = state.selectedIngredients,
@@ -121,7 +140,7 @@ fun RenderScreen(
                 top.linkTo(dropDown.bottom, margin = RecipeGeneratorActivity.DISPLAYED_MARGIN)
                 absoluteLeft.linkTo(parent.absoluteLeft)
                 absoluteRight.linkTo(parent.absoluteRight)
-                bottom.linkTo(generateBtn.top)
+                bottom.linkTo(generateBtn.top, margin = RecipeGeneratorActivity.DISPLAYED_MARGIN)
                 height = Dimension.fillToConstraints
             },
             ingredients = state.selectedIngredients,
@@ -132,6 +151,17 @@ fun RenderScreen(
             }
         )
 
+        BackgroundImage(
+            modifier = Modifier
+                .fillMaxSize()
+                .constrainAs(backgroundImage) {
+                    top.linkTo(dropDown.bottom)
+                    bottom.linkTo(generateBtn.top)
+                },
+            painter = painterResource(id = R.drawable.arranging),
+            description = stringResource(id = R.string.arrange)
+        )
+
         GenericBtn(
             modifier = Modifier.constrainAs(generateBtn) {
                 bottom.linkTo(parent.bottom, margin = RecipeGeneratorActivity.CLICKABLE_MARGIN)
@@ -139,12 +169,40 @@ fun RenderScreen(
                 absoluteRight.linkTo(parent.absoluteRight)
             },
             text = stringResource(id = R.string.generate_recipe),
-            backgroundColor = colorResource(id = R.color.green),
+            containerColor = colorResource(id = R.color.green),
             contentColor = colorResource(id = R.color.black),
+            shape = RoundedCornerShape(HomeActivity.CORNER_ROUNDING),
+            fontSize = HomeActivity.BUTTON_FONT_SIZE,
             onClick = {
                 val intent = Intent(context, RecipeGeneratorActivity::class.java)
                 context.startActivity(intent)
             }
+        )
+    }
+
+    if (state.loading || state.verifyingIngredient) {
+        closeDropdown = true
+        Loading(
+            resource = R.drawable.vegetable_bag,
+            resourceDescription = stringResource(id = R.string.grocery_bag_animation)
+        )
+    } else {
+        closeDropdown = false
+    }
+
+    if (state.error.isNotEmpty()) {
+        ErrorAlertDialog(
+            modifier = Modifier.fillMaxWidth(),
+            onDismiss = { onIngredientEvent(IngredientEvent.ClearError) },
+            errorText = state.error
+        )
+    }
+
+    if (state.success.isNotEmpty() && !state.loading) {
+        SuccessAlertDialog(
+            modifier = Modifier.fillMaxWidth(),
+            onDismiss = { onIngredientEvent(IngredientEvent.ClearSuccess) },
+            successText = state.success
         )
     }
 }
@@ -153,6 +211,7 @@ fun RenderScreen(
 fun AddDropdown(
     modifier: Modifier,
     searchText: String,
+    closeDropdown: Boolean,
     ingredients: List<Ingredient>,
     ingredientMap: Map<CategoryDetail, List<Ingredient>>,
     selectedIngredients: List<String>,
@@ -160,8 +219,9 @@ fun AddDropdown(
 ) {
     Dropdown(
         modifier = modifier.fillMaxWidth(RecipeGeneratorActivity.ROW_ITEM_WIDTH),
-        name = stringResource(id = R.string.add_item),
+        name = stringResource(id = R.string.add_ingredient),
         isLastLevel = false,
+        closeDropdown = closeDropdown,
         color = colorResource(id = R.color.green),
         shape = RoundedCornerShape(RecipeGeneratorActivity.CORNER_ROUNDING),
         searchable = true,
@@ -187,7 +247,12 @@ fun AddDropdown(
                                 IngredientEvent.SelectIngredient(ingredient)
                             )
                         },
-                        onDismiss = onDismiss
+                        onDismiss = onDismiss,
+                        onRemove = { name ->
+                            onIngredientEvent(
+                                IngredientEvent.RemoveIngredient(name)
+                            )
+                        }
                     )
                 }
             } else {
@@ -201,11 +266,66 @@ fun AddDropdown(
                                 IngredientEvent.SelectIngredient(ingredient)
                             )
                         },
-                        onDismiss = onDismiss
+                        onDismiss = onDismiss,
+                        onRemove = { name ->
+                            onIngredientEvent(
+                                IngredientEvent.RemoveIngredient(name)
+                            )
+                        }
                     )
                 }
             }
-        })
+            AddCustomIngredientButton(
+                modifier = Modifier.fillMaxWidth(),
+                searchText = searchText,
+                onIngredientEvent = onIngredientEvent
+            )
+        }
+    )
+}
+
+@Composable
+fun AddCustomIngredientButton(
+    modifier: Modifier,
+    searchText: String,
+    onIngredientEvent: (IngredientEvent) -> Unit
+) {
+    var showAlert by remember { mutableStateOf(false) }
+
+    GenericBtn(
+        modifier = Modifier
+            .fillMaxSize()
+            .height(RecipeGeneratorActivity.ITEM_SIZE),
+        width = RecipeGeneratorActivity.ROW_ITEM_WIDTH,
+        text = stringResource(id = R.string.add_custom_ingredient),
+        textAlignment = TextAlign.Left,
+        containerColor = colorResource(id = R.color.light_grey),
+        contentColor = colorResource(id = R.color.black),
+        shape = RectangleShape,
+        fontSize = RecipeGeneratorActivity.ITEM_TEXT_FONT_SIZE,
+        contentPadding = PaddingValues(0.dp),
+        onClick = { showAlert = true },
+        image = {
+            Image(
+                modifier = Modifier.padding(horizontal = RecipeGeneratorActivity.IMAGE_TEXT_PADDING),
+                painter = painterResource(id = R.drawable.add),
+                contentDescription = stringResource(id = R.string.add_icon)
+            )
+        }
+    )
+    if (showAlert) {
+        InputAlertDialog(
+            modifier = modifier,
+            inputText = searchText,
+            onVerify = { ingredientName ->
+                onIngredientEvent(
+                    IngredientEvent.AddIngredient(ingredientName)
+                )
+                showAlert = false
+            },
+            onCancel = { showAlert = false }
+        )
+    }
 }
 
 @Composable
@@ -232,59 +352,11 @@ fun IngredientList(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    RecipeRuletteTheme {
-        ConstraintLayout {
-            val context = LocalContext.current
-            val (title, ingredients, generateBtn, dropDown) = createRefs()
+    val selectedIngredients = listOf("Carrot", "Beef Broth", "Potatoes")
+    val previewState = IngredientState(selectedIngredients = selectedIngredients)
 
-            Title(
-                modifier = Modifier.constrainAs(title) {
-                    top.linkTo(parent.top, margin = RecipeGeneratorActivity.DISPLAYED_MARGIN)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                },
-                title = stringResource(id = R.string.ingredients)
-            )
-
-            AddDropdown(
-                modifier = Modifier.constrainAs(dropDown) {
-                    top.linkTo(title.bottom, margin = RecipeGeneratorActivity.DISPLAYED_MARGIN)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                },
-                searchText = "",
-                ingredients = emptyList(),
-                ingredientMap = mapOf(),
-                selectedIngredients = mutableListOf(),
-                onIngredientEvent = {}
-            )
-
-            IngredientList(
-                modifier = Modifier.constrainAs(ingredients) {
-                    top.linkTo(dropDown.bottom, margin = RecipeGeneratorActivity.DISPLAYED_MARGIN)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                    bottom.linkTo(generateBtn.top)
-                    height = Dimension.fillToConstraints
-                },
-                ingredients = RecipeGeneratorActivity.PREVIEW_SELECTED_ITEMS,
-                removeIngredient = {}
-            )
-
-            GenericBtn(
-                modifier = Modifier.constrainAs(generateBtn) {
-                    bottom.linkTo(parent.bottom, margin = HomeActivity.CLICKABLE_MARGIN)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                },
-                text = stringResource(id = R.string.generate_recipe),
-                backgroundColor = colorResource(id = R.color.green),
-                contentColor = colorResource(id = R.color.black),
-                onClick = {
-                    val intent = Intent(context, RecipeGeneratorActivity::class.java)
-                    context.startActivity(intent)
-                }
-            )
-        }
-    }
+    RenderScreen(
+        state = previewState,
+        onIngredientEvent = {}
+    )
 }

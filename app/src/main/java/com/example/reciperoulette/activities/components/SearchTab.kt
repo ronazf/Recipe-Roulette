@@ -1,6 +1,5 @@
 package com.example.reciperoulette.activities.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -9,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,11 +17,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.reciperoulette.R
-import com.example.reciperoulette.activities.recipeGeneratorActivity.RecipeGeneratorActivity
+import com.example.reciperoulette.activities.GeneralConstants
 
 @Composable
 fun SearchTab(
@@ -35,27 +37,25 @@ fun SearchTab(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(RecipeGeneratorActivity.ITEM_SIZE)
+                .height(GeneralConstants.ITEM_SIZE)
                 .shadow(
-                    elevation = RecipeGeneratorActivity.DROP_SHADOW_ELEVATION
+                    elevation = GeneralConstants.DROP_SHADOW_ELEVATION
                 )
                 .clip(RectangleShape)
                 .background(color)
         ) {
             CustomTextField(
                 modifier = modifier
-                    .fillMaxWidth()
                     .height(45.dp)
-                    .clip(shape = RoundedCornerShape(RecipeGeneratorActivity.CORNER_ROUNDING)),
+                    .clip(shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING)),
                 value = "",
                 onValueChange = onValueChange,
                 placeHolder = stringResource(id = R.string.search_ingredient),
                 leadingIcon = { onClick ->
-                    Image(
+                    Icon(
                         modifier = Modifier
                             .padding(
-                                start = RecipeGeneratorActivity.IMAGE_TEXT_PADDING,
-                                end = RecipeGeneratorActivity.IMAGE_TEXT_PADDING
+                                start = GeneralConstants.IMAGE_TEXT_PADDING,
                             )
                             .clickable {
                                 onClick()
@@ -65,17 +65,33 @@ fun SearchTab(
                     )
                 },
                 trailingIcon = { onClick ->
-                    Image(
+                    Icon(
                         modifier = Modifier
                             .padding(
-                                start = RecipeGeneratorActivity.IMAGE_TEXT_PADDING,
-                                end = RecipeGeneratorActivity.IMAGE_TEXT_PADDING
+                                start = GeneralConstants.IMAGE_TEXT_PADDING
                             )
                             .clickable {
                                 onClick()
                             },
                         painter = painterResource(R.drawable.close),
                         contentDescription = stringResource(id = R.string.close_description)
+                    )
+                    VerticalDivider(
+                        modifier = Modifier
+                            .height(25.dp)
+                            .shadow(elevation = 2.dp),
+                        color = colorResource(id = R.color.medium_grey)
+                    )
+                    Icon(
+                        modifier = Modifier
+                            .padding(
+                                end = GeneralConstants.IMAGE_TEXT_PADDING
+                            )
+                            .clickable {
+                                onClick()
+                            },
+                        painter = painterResource(R.drawable.filter),
+                        contentDescription = stringResource(id = R.string.filter)
                     )
                 },
                 singleLine = true

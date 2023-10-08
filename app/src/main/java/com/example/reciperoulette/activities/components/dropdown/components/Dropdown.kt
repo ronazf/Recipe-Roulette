@@ -1,4 +1,4 @@
-package com.example.reciperoulette.activities.components
+package com.example.reciperoulette.activities.components.dropdown.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,10 +28,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import com.example.reciperoulette.R
-import com.example.reciperoulette.activities.recipeGeneratorActivity.RecipeGeneratorActivity
+import com.example.reciperoulette.activities.GeneralConstants
+import com.example.reciperoulette.activities.components.SearchTab
+import com.example.reciperoulette.activities.components.dropdown.DropdownConstants
 import com.example.reciperoulette.database.ingredients.CategoryDetail
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 
@@ -38,6 +40,7 @@ fun Dropdown(
     modifier: Modifier,
     name: String,
     isLastLevel: Boolean,
+    closeDropdown: Boolean = false,
     color: Color,
     shape: Shape,
     searchable: Boolean = false,
@@ -49,6 +52,8 @@ fun Dropdown(
     val vector = if (isExpanded) R.drawable.expand_less else R.drawable.expand_more
     val vectorDescription = if (isExpanded) R.string.expand_less else R.string.expand_more
 
+    if (closeDropdown) isExpanded = false
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -56,9 +61,9 @@ fun Dropdown(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(RecipeGeneratorActivity.ITEM_SIZE)
+                .height(GeneralConstants.ITEM_SIZE)
                 .shadow(
-                    elevation = RecipeGeneratorActivity.DROP_SHADOW_ELEVATION,
+                    elevation = GeneralConstants.DROP_SHADOW_ELEVATION,
                     shape = shape
                 )
                 .clip(shape = shape)
@@ -71,15 +76,15 @@ fun Dropdown(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterStart)
-                    .padding(start = RecipeGeneratorActivity.IMAGE_TEXT_PADDING),
+                    .padding(start = GeneralConstants.IMAGE_TEXT_PADDING),
                 text = name,
-                fontSize = RecipeGeneratorActivity.ITEM_TEXT_FONT_SIZE,
-                fontFamily = FontFamily(Font(R.font.judson_regular))
+                fontSize = GeneralConstants.TEXT_FONT_SIZE,
+                fontFamily = GeneralConstants.FONT_FAMILY
             )
             Image(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = RecipeGeneratorActivity.IMAGE_TEXT_PADDING),
+                    .padding(end = GeneralConstants.IMAGE_TEXT_PADDING),
                 painter = painterResource(id = vector),
                 contentDescription = stringResource(id = vectorDescription)
             )
@@ -87,28 +92,35 @@ fun Dropdown(
                 return@Box
             }
             if (isExpanded) {
-                DropdownMenu(
-                    modifier = Modifier
-                        .fillMaxWidth(RecipeGeneratorActivity.ROW_ITEM_WIDTH)
-                        .align(Alignment.Center)
-                        .heightIn(max = RecipeGeneratorActivity.MAX_DROPDOWN_HEIGHT),
-                    expanded = isExpanded,
-                    onDismissRequest = {
-                        isExpanded = false
-                        clearSearch?.invoke()
-                    }
+                MaterialTheme(
+                    shapes = MaterialTheme.shapes.copy(
+                        extraSmall = RoundedCornerShape(DropdownConstants.CORNER_ROUNDING)
+                    )
                 ) {
-                    if (searchable) {
-                        SearchTab(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = colorResource(id = R.color.white)
-                        ) {
-                            searchResult?.invoke(it)
+                    DropdownMenu(
+                        modifier = Modifier
+                            .fillMaxWidth(DropdownConstants.ROW_ITEM_WIDTH)
+                            .align(Alignment.Center)
+                            .heightIn(max = DropdownConstants.MAX_DROPDOWN_HEIGHT)
+                            .background(color = colorResource(id = R.color.white)),
+                        expanded = isExpanded,
+                        onDismissRequest = {
+                            isExpanded = false
+                            clearSearch?.invoke()
                         }
-                    }
-                    content {
-                        isExpanded = false
-                        clearSearch?.invoke()
+                    ) {
+                        if (searchable) {
+                            SearchTab(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = colorResource(id = R.color.white)
+                            ) {
+                                searchResult?.invoke(it)
+                            }
+                        }
+                        content {
+                            isExpanded = false
+                            clearSearch?.invoke()
+                        }
                     }
                 }
             }
@@ -128,7 +140,8 @@ fun LayeredDropdown(
     entry: Map.Entry<CategoryDetail, List<Ingredient>>,
     selectedItems: List<String>,
     onSelect: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onRemove: (String) -> Unit
 ) {
     Dropdown(
         modifier = modifier.fillMaxWidth(),
@@ -143,7 +156,8 @@ fun LayeredDropdown(
                     name = it.ingredientName,
                     selectedItems = selectedItems,
                     onSelect = onSelect,
-                    onDismiss = onDismiss
+                    onDismiss = onDismiss,
+                    onRemove = onRemove
                 )
             }
         }
@@ -156,7 +170,8 @@ fun InnerDropdown(
     name: String,
     selectedItems: List<String>,
     onSelect: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onRemove: (String) -> Unit
 ) {
     DropDownItem(
         modifier = modifier.fillMaxWidth(),
@@ -164,6 +179,7 @@ fun InnerDropdown(
         selectedItems = selectedItems,
         onSelect = onSelect,
         closeDropDown = { onDismiss.invoke() },
+        onRemove = onRemove,
         duplicateWarningResource = R.string.ingredient_already_selected
     )
 }

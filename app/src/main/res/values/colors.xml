@@ -26,4 +26,6 @@
     <color name="dark_pink">#FFF582A7</color>
     <color name="orange">#FFFAD9A1</color>
     <color name="green">#FF61B15A</color>
+    <color name="medium_grey">#FFA6AAAC</color>
+    <color name="loading_background">#80000000</color>
 </resources>
