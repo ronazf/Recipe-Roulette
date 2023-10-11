@@ -1,8 +1,9 @@
 package com.example.reciperoulette.viewModels.recipeViewModel
 
-import android.util.Log
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientEvent
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientState
 import com.example.reciperoulette.api.response.Resource
@@ -12,14 +13,19 @@ import com.example.reciperoulette.repositories.recipeRepository.RecipeRepository
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 import com.example.reciperoulette.use_case.ingredientsUC.IngredientsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 // TODO: check state race condition with multiple updates
+@OptIn(ExperimentalCoroutinesApi::class)
 class RecipeViewModel @Inject constructor(
     private val recipeRepo: RecipeRepositoryImpl,
     private val ingredientUC: IngredientsUseCases
@@ -31,15 +37,33 @@ class RecipeViewModel @Inject constructor(
             "Custom ingredient was successfully added to your ingredient list."
     }
 
-    private val _state = MutableStateFlow(IngredientState())
-    val state: StateFlow<IngredientState> = _state
+    private val _searchText = MutableStateFlow("")
+    private val _filter = MutableStateFlow(Filter())
+    private val _ingredients = combine(_searchText, _filter) { searchText, filter ->
+        Pair(searchText, filter)
+    }.flatMapLatest { (searchText, filter) ->
+        ingredientUC.getIngredients(filter = filter, searchText = searchText)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    init {
-        _state.update {
-            it.copy(loading = true)
-        }
-        getIngredients()
-    }
+    private val _state = MutableStateFlow(IngredientState())
+    val state = combine(
+        _state,
+        _searchText,
+        _filter,
+        _ingredients
+    ) { state, searchText, filter, ingredients ->
+        state.copy(
+            ingredients = ingredients,
+            mappedIngredients = ingredients
+                .groupBy { ingredient ->
+                    CategoryDetail.values().find { category ->
+                        category.id == ingredient.categoryId.toInt()
+                    } ?: throw InvalidCategoryException("")
+                },
+            searchText = searchText,
+            filter = filter
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IngredientState())
 
     fun onIngredientEvent(event: IngredientEvent) {
         when (event) {
@@ -54,16 +78,11 @@ class RecipeViewModel @Inject constructor(
             }
 
             is IngredientEvent.FilterIngredients -> {
-                _state.update {
-                    it.copy(
-                        filter = event.filter
-                    )
-                }
-                getIngredients()
+                _filter.value = event.filter
             }
 
             is IngredientEvent.RemoveIngredient -> {
-                _state.value.ingredients.find {
+                _ingredients.value.find {
                     it.ingredientName == event.ingredientName
                 }?.let {
                     deleteIngredient(it)
@@ -93,21 +112,11 @@ class RecipeViewModel @Inject constructor(
             }
 
             is IngredientEvent.SearchIngredient -> {
-                _state.update {
-                    it.copy(
-                        searchText = event.searchText
-                    )
-                }
-                getIngredients()
+                _searchText.value = event.searchText
             }
 
             IngredientEvent.ClearSearch -> {
-                _state.update {
-                    it.copy(
-                        searchText = ""
-                    )
-                }
-                getIngredients()
+                _searchText.value = ""
             }
 
             IngredientEvent.ClearError -> {
@@ -128,38 +137,28 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    private fun getIngredients() {
-        viewModelScope.launch {
-            ingredientUC.getIngredients(_state.value.filter, _state.value.searchText)
-                .collect { ingredientList ->
-                    _state.update {
-                        it.copy(
-                            loading = false,
-                            ingredients = ingredientList,
-                            mappedIngredients = ingredientList
-                                .groupBy { ingredient ->
-                                    CategoryDetail.values().find { category ->
-                                        category.id == ingredient.categoryId.toInt()
-                                    } ?: throw InvalidCategoryException("")
-                                }
-                        )
-                    }
-                }
-        }
-    }
-
     private fun upsertIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
-            ingredientUC.upsertIngredient(ingredient)
-            getIngredients()
+            try {
+                ingredientUC.upsertIngredient(ingredient)
+                _state.update { ingredientState ->
+                    ingredientState.copy(
+                        success = INGREDIENT_ADDED,
+                    )
+                }
+            } catch (e: SQLiteConstraintException) {
+                _state.update { ingredientState ->
+                    ingredientState.copy(
+                        error = DUPLICATE_INGREDIENT
+                    )
+                }
+            }
         }
     }
 
     private fun deleteIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
-            Log.d("success", "removing ingredient: " + ingredient)
             ingredientUC.deleteIngredient(ingredient)
-            getIngredients()
         }
     }
 
@@ -183,7 +182,7 @@ class RecipeViewModel @Inject constructor(
                         _state.update { ingredientState ->
                             ingredientState.copy(
                                 verifyingIngredient = false,
-                                error = it.message ?: UNKNOWN_ERROR
+                                error = it.message?.ifEmpty { UNKNOWN_ERROR } ?: UNKNOWN_ERROR
                             )
                         }
                     }
@@ -202,7 +201,6 @@ class RecipeViewModel @Inject constructor(
                         _state.update { ingredientState ->
                             ingredientState.copy(
                                 verifyingIngredient = false,
-                                success = INGREDIENT_ADDED
                             )
                         }
                         it.data?.let { ingredient ->

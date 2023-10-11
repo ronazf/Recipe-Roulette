@@ -45,7 +45,8 @@
     <string name="confirm_remove_ingredient">Are you sure you want to permanently remove the
         following ingredient?</string>
     <string name="filter">Filter icon</string>
+    <string name="close_filter">Close filter icon</string>
     <string name="home_background">Chef image</string>
     <string name="arrange">Arranging image</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading icon</string>
 </resources>

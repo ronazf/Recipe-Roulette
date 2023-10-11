@@ -48,9 +48,12 @@ import com.example.reciperoulette.activities.components.dropdown.components.Inne
 import com.example.reciperoulette.activities.components.ItemRow
 import com.example.reciperoulette.activities.components.dropdown.components.LayeredDropdown
 import com.example.reciperoulette.activities.components.Loading
+import com.example.reciperoulette.activities.components.SearchTab
 import com.example.reciperoulette.activities.components.alertDialog.components.SuccessAlertDialog
 import com.example.reciperoulette.activities.components.Title
+import com.example.reciperoulette.activities.components.filter.components.FilterTab
 import com.example.reciperoulette.activities.homeActivity.HomeActivity
+import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientEvent
 import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientState
 import com.example.reciperoulette.database.ingredients.CategoryDetail
@@ -105,7 +108,7 @@ fun RenderScreen(
     onIngredientEvent: (IngredientEvent) -> Unit
 ) {
     val context = LocalContext.current
-    var closeDropdown by remember { mutableStateOf(false) }
+    var forceCloseDropdown by remember { mutableStateOf(false) }
 
     ConstraintLayout(
         modifier = Modifier.pointerInteropFilter { state.loading || state.verifyingIngredient }
@@ -127,12 +130,49 @@ fun RenderScreen(
                 absoluteLeft.linkTo(parent.absoluteLeft)
                 absoluteRight.linkTo(parent.absoluteRight)
             },
-            searchText = state.searchText,
-            closeDropdown = closeDropdown,
-            ingredients = state.ingredients,
-            ingredientMap = state.mappedIngredients,
-            selectedIngredients = state.selectedIngredients,
-            onIngredientEvent = onIngredientEvent
+            forceClose = forceCloseDropdown,
+            onDismiss = { onIngredientEvent(IngredientEvent.ClearSearch) }
+        ) { onDismiss ->
+            AddSearchFilter(
+                filter = state.filter,
+                onIngredientEvent = onIngredientEvent
+            )
+            if (state.searchText.isEmpty()) {
+                AddLayeredDropdown(
+                    mappedIngredients = state.mappedIngredients,
+                    selectedIngredients = state.selectedIngredients,
+                    onIngredientEvent = onIngredientEvent,
+                    onDismiss = onDismiss
+                )
+            } else {
+                AddInnerDropdown(
+                    modifier = Modifier,
+                    ingredients = state.ingredients,
+                    selectedIngredients = state.selectedIngredients,
+                    onIngredientEvent = onIngredientEvent,
+                    onDismiss = onDismiss
+                )
+            }
+            AddCustomIngredientButton(
+                modifier = Modifier.fillMaxWidth(),
+                searchText = state.searchText,
+                onIngredientEvent = onIngredientEvent
+            ) {
+                onIngredientEvent(
+                    IngredientEvent.ClearSearch
+                )
+            }
+        }
+
+        BackgroundImage(
+            modifier = Modifier
+                .fillMaxSize()
+                .constrainAs(backgroundImage) {
+                    top.linkTo(dropDown.bottom)
+                    bottom.linkTo(generateBtn.top)
+                },
+            painter = painterResource(id = R.drawable.arranging),
+            description = stringResource(id = R.string.arrange)
         )
 
         IngredientList(
@@ -149,17 +189,6 @@ fun RenderScreen(
                     IngredientEvent.RemoveSelectedIngredient(name)
                 )
             }
-        )
-
-        BackgroundImage(
-            modifier = Modifier
-                .fillMaxSize()
-                .constrainAs(backgroundImage) {
-                    top.linkTo(dropDown.bottom)
-                    bottom.linkTo(generateBtn.top)
-                },
-            painter = painterResource(id = R.drawable.arranging),
-            description = stringResource(id = R.string.arrange)
         )
 
         GenericBtn(
@@ -181,13 +210,13 @@ fun RenderScreen(
     }
 
     if (state.loading || state.verifyingIngredient) {
-        closeDropdown = true
+        forceCloseDropdown = true
         Loading(
             resource = R.drawable.vegetable_bag,
             resourceDescription = stringResource(id = R.string.grocery_bag_animation)
         )
     } else {
-        closeDropdown = false
+        forceCloseDropdown = false
     }
 
     if (state.error.isNotEmpty()) {
@@ -210,85 +239,109 @@ fun RenderScreen(
 @Composable
 fun AddDropdown(
     modifier: Modifier,
-    searchText: String,
-    closeDropdown: Boolean,
-    ingredients: List<Ingredient>,
-    ingredientMap: Map<CategoryDetail, List<Ingredient>>,
-    selectedIngredients: List<String>,
-    onIngredientEvent: (IngredientEvent) -> Unit,
+    forceClose: Boolean,
+    onDismiss: () -> Unit,
+    content: @Composable (() -> Unit) -> Unit
 ) {
     Dropdown(
         modifier = modifier.fillMaxWidth(RecipeGeneratorActivity.ROW_ITEM_WIDTH),
         name = stringResource(id = R.string.add_ingredient),
         isLastLevel = false,
-        closeDropdown = closeDropdown,
+        forceClose = forceClose,
         color = colorResource(id = R.color.green),
         shape = RoundedCornerShape(RecipeGeneratorActivity.CORNER_ROUNDING),
-        searchable = true,
-        searchResult = { it: String ->
-            onIngredientEvent(
-                IngredientEvent.SearchIngredient(it)
-            )
-        },
-        clearSearch = {
-            onIngredientEvent(
-                IngredientEvent.ClearSearch
-            )
-        },
-        content = { onDismiss ->
-            if (searchText.isEmpty()) {
-                ingredientMap.onEach { entry ->
-                    LayeredDropdown(
-                        modifier = modifier.fillMaxWidth(),
-                        entry = entry,
-                        selectedItems = selectedIngredients,
-                        onSelect = { ingredient: String ->
-                            onIngredientEvent(
-                                IngredientEvent.SelectIngredient(ingredient)
-                            )
-                        },
-                        onDismiss = onDismiss,
-                        onRemove = { name ->
-                            onIngredientEvent(
-                                IngredientEvent.RemoveIngredient(name)
-                            )
-                        }
-                    )
-                }
-            } else {
-                ingredients.forEach {
-                    InnerDropdown(
-                        modifier = modifier,
-                        name = it.ingredientName,
-                        selectedItems = selectedIngredients,
-                        onSelect = { ingredient: String ->
-                            onIngredientEvent(
-                                IngredientEvent.SelectIngredient(ingredient)
-                            )
-                        },
-                        onDismiss = onDismiss,
-                        onRemove = { name ->
-                            onIngredientEvent(
-                                IngredientEvent.RemoveIngredient(name)
-                            )
-                        }
-                    )
-                }
-            }
-            AddCustomIngredientButton(
-                modifier = Modifier.fillMaxWidth(),
-                searchText = searchText,
-                onIngredientEvent = onIngredientEvent
+        onDismiss = onDismiss,
+        content = content
+    )
+}
+
+@Composable
+fun AddLayeredDropdown(
+    mappedIngredients: Map<CategoryDetail, List<Ingredient>>,
+    selectedIngredients: List<String>,
+    onIngredientEvent: (IngredientEvent) -> Unit,
+    onDismiss: () -> Unit
+) {
+    mappedIngredients.onEach { entry ->
+        LayeredDropdown(
+            modifier = Modifier.fillMaxWidth(),
+            entry = entry
+        ) {
+            AddInnerDropdown(
+                modifier = Modifier,
+                ingredients = entry.value,
+                selectedIngredients = selectedIngredients,
+                onIngredientEvent = onIngredientEvent,
+                onDismiss = onDismiss
             )
         }
-    )
+    }
+}
+
+@Composable
+fun AddInnerDropdown(
+    modifier: Modifier,
+    ingredients: List<Ingredient>,
+    selectedIngredients: List<String>,
+    onIngredientEvent: (IngredientEvent) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ingredients.forEach {
+        InnerDropdown(
+            modifier = modifier,
+            name = it.ingredientName,
+            selectedItems = selectedIngredients,
+            onSelect = { ingredient: String ->
+                onIngredientEvent(
+                    IngredientEvent.SelectIngredient(ingredient)
+                )
+            },
+            onDismiss = onDismiss,
+            onRemove = { name ->
+                onIngredientEvent(
+                    IngredientEvent.RemoveIngredient(name)
+                )
+            }
+        )
+    }
+}
+
+@Composable
+fun AddSearchFilter(
+    filter: Filter,
+    onIngredientEvent: (IngredientEvent) -> Unit
+) {
+    var showFilter by remember { mutableStateOf(false) }
+    val filterIcon = if (showFilter) R.drawable.close_filter else R.drawable.filter
+    val filterIconDescription = if (showFilter) R.string.close_filter else R.string.filter
+
+    SearchTab(
+        modifier = Modifier.fillMaxWidth(),
+        color = colorResource(id = R.color.white),
+        filterIcon = painterResource(id = filterIcon),
+        filterIconDescription = stringResource(id = filterIconDescription),
+        onFilter = { showFilter = !showFilter }
+    ) { it: String ->
+        onIngredientEvent(
+            IngredientEvent.SearchIngredient(it)
+        )
+    }
+    if (showFilter) {
+        FilterTab(
+            modifier = Modifier.fillMaxWidth(),
+            filter = filter,
+            onIngredientEvent = onIngredientEvent
+        )
+    }
+
 }
 
 @Composable
 fun AddCustomIngredientButton(
     modifier: Modifier,
     searchText: String,
-    onIngredientEvent: (IngredientEvent) -> Unit
+    onIngredientEvent: (IngredientEvent) -> Unit,
+    onConfirm: () -> Unit
 ) {
     var showAlert by remember { mutableStateOf(false) }
 
@@ -318,6 +371,7 @@ fun AddCustomIngredientButton(
             modifier = modifier,
             inputText = searchText,
             onVerify = { ingredientName ->
+                onConfirm()
                 onIngredientEvent(
                     IngredientEvent.AddIngredient(ingredientName)
                 )

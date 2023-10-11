@@ -32,7 +32,7 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     singleLine: Boolean = false,
     leadingIcon: @Composable ((onClick: () -> Unit) -> Unit)? = null,
-    trailingIcon: @Composable ((onClick: () -> Unit) -> Unit)? = null
+    trailingIcon: @Composable ((visibility: Boolean, onClick: () -> Unit) -> Unit)? = null
 ) {
     var text by remember { mutableStateOf(value) }
 
@@ -61,10 +61,13 @@ fun CustomTextField(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         leadingIcon?.let { leadingIcon {} }
                         Box(
                             modifier = Modifier
+                                .align(Alignment.CenterVertically)
                                 .padding(
                                     horizontal = GeneralConstants.IMAGE_TEXT_PADDING
                                 )
@@ -80,11 +83,9 @@ fun CustomTextField(
                         }
                     }
                     trailingIcon?.let {
-                        if (text.isNotEmpty()) {
-                            trailingIcon {
-                                text = ""
-                                onValueChange.invoke("")
-                            }
+                        trailingIcon(text.isNotEmpty()) {
+                            text = ""
+                            onValueChange.invoke("")
                         }
                     }
                 }

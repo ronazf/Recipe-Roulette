@@ -11,7 +11,9 @@ class GeneralConstants {
         val BUTTON_FONT_SIZE = 20.sp
         val ITEM_SIZE = 45.dp
         val DROP_SHADOW_ELEVATION = 8.dp
+        val VERTICAL_DIVIDER_SHADOW = 2.dp
         val IMAGE_TEXT_PADDING = 10.dp
+        val VERTICAL_DIVIDER_HEIGHT = 25.dp
         val TEXT_FONT_SIZE = 15.sp
         val FONT_FAMILY = FontFamily(Font(R.font.judson_regular))
         const val CORNER_ROUNDING = 35

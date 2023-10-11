@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
-import com.example.reciperoulette.activities.components.SearchTab
 import com.example.reciperoulette.activities.components.dropdown.DropdownConstants
 import com.example.reciperoulette.database.ingredients.CategoryDetail
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
@@ -40,19 +39,20 @@ fun Dropdown(
     modifier: Modifier,
     name: String,
     isLastLevel: Boolean,
-    closeDropdown: Boolean = false,
+    forceClose: Boolean = false,
     color: Color,
     shape: Shape,
-    searchable: Boolean = false,
-    searchResult: ((String) -> Unit)? = null,
-    clearSearch: (() -> Unit)? = null,
+    onDismiss: () -> Unit = {},
     content: @Composable (() -> Unit) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val vector = if (isExpanded) R.drawable.expand_less else R.drawable.expand_more
     val vectorDescription = if (isExpanded) R.string.expand_less else R.string.expand_more
 
-    if (closeDropdown) isExpanded = false
+    if (forceClose) {
+        onDismiss()
+        isExpanded = false
+    }
 
     Column(
         modifier = modifier,
@@ -105,21 +105,13 @@ fun Dropdown(
                             .background(color = colorResource(id = R.color.white)),
                         expanded = isExpanded,
                         onDismissRequest = {
+                            onDismiss()
                             isExpanded = false
-                            clearSearch?.invoke()
                         }
                     ) {
-                        if (searchable) {
-                            SearchTab(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = colorResource(id = R.color.white)
-                            ) {
-                                searchResult?.invoke(it)
-                            }
-                        }
                         content {
+                            onDismiss()
                             isExpanded = false
-                            clearSearch?.invoke()
                         }
                     }
                 }
@@ -128,8 +120,8 @@ fun Dropdown(
     }
     if ((isLastLevel) && isExpanded) {
         content {
+            onDismiss()
             isExpanded = false
-            clearSearch?.invoke()
         }
     }
 }
@@ -138,10 +130,7 @@ fun Dropdown(
 fun LayeredDropdown(
     modifier: Modifier,
     entry: Map.Entry<CategoryDetail, List<Ingredient>>,
-    selectedItems: List<String>,
-    onSelect: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onRemove: (String) -> Unit
+    content: @Composable () -> Unit
 ) {
     Dropdown(
         modifier = modifier.fillMaxWidth(),
@@ -150,16 +139,7 @@ fun LayeredDropdown(
         color = colorResource(id = R.color.white),
         shape = RectangleShape,
         content = {
-            entry.value.forEach {
-                InnerDropdown(
-                    modifier = modifier,
-                    name = it.ingredientName,
-                    selectedItems = selectedItems,
-                    onSelect = onSelect,
-                    onDismiss = onDismiss,
-                    onRemove = onRemove
-                )
-            }
+            content()
         }
     )
 }

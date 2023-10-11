@@ -11,6 +11,7 @@ import com.example.reciperoulette.database.ingredients.entities.InvalidIngredien
 import com.example.reciperoulette.repositories.ingredientsRepository.IngredientsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
@@ -50,7 +51,8 @@ class ValidateIngredientUC @Inject constructor(
 
     @Throws(InvalidIngredientException::class, InvalidResponseException::class)
     private fun processResult(res: Completion): Ingredient {
-        val response = JSONObject(res.choices
+
+        val response = getJsonObj(res.choices
             .last {
                 it.message.role == Role.ASSISTANT.type
             }.message.content
@@ -58,6 +60,14 @@ class ValidateIngredientUC @Inject constructor(
 
         validIngredientCheck(response)
         return mapToIngredient(response)
+    }
+
+    private fun getJsonObj(resContent: String): JSONObject {
+        return try {
+            JSONObject(resContent)
+        } catch (e: JSONException) {
+            JSONArray(resContent).getJSONObject(0)
+        }
     }
 
     @Throws(InvalidIngredientException::class)
