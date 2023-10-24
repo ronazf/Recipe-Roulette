@@ -31,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
 import com.example.reciperoulette.activities.components.dropdown.DropdownConstants
-import com.example.reciperoulette.database.ingredients.CategoryDetail
+import com.example.reciperoulette.database.ingredients.details.CategoryDetail
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 
 @Composable

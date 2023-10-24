@@ -6,12 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
-import com.example.reciperoulette.activities.homeActivity.HomeActivity
 
 @Composable
 fun Title(
@@ -23,7 +19,7 @@ fun Title(
             .fillMaxWidth()
             .wrapContentSize(Alignment.Center),
         text = title,
-        fontSize = HomeActivity.TITLE_FONT_SIZE,
+        fontSize = GeneralConstants.TITLE_FONT_SIZE,
         textAlign = TextAlign.Center,
         fontFamily = GeneralConstants.FONT_FAMILY
     )

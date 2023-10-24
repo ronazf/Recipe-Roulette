@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import com.example.reciperoulette.activities.GeneralConstants
-import com.example.reciperoulette.activities.homeActivity.HomeActivity
+import com.example.reciperoulette.activities.screens.homeScreen.HomeConstants
 
 @Composable
 fun GenericBtn(
@@ -27,7 +27,7 @@ fun GenericBtn(
     contentColor: Color,
     shape: Shape,
     fontSize: TextUnit,
-    width: Float = HomeActivity.BUTTON_WIDTH,
+    width: Float = HomeConstants.BUTTON_WIDTH,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     image: @Composable (() -> Unit)? = null,
     onClick: () -> Unit

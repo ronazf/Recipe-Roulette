@@ -1,0 +1,60 @@
+com.example.reciperoulette.app-activity-compose-1.8.0-0 /Users/ronazfarahmand/.gradle/caches/transforms-3/04acf0156e378f11a450eefd0552355c/transformed/activity-compose-1.8.0/res
+com.example.reciperoulette.app-ui-tooling-preview-release-1 /Users/ronazfarahmand/.gradle/caches/transforms-3/09ca9628447221e52842d48d18ea6e67/transformed/ui-tooling-preview-release/res
+com.example.reciperoulette.app-ui-util-release-2 /Users/ronazfarahmand/.gradle/caches/transforms-3/0a1df7c89139d16d1ca62fd8a4b126bf/transformed/ui-util-release/res
+com.example.reciperoulette.app-animation-release-3 /Users/ronazfarahmand/.gradle/caches/transforms-3/0d81e9d9c8a2946f58cf0e28aa88d406/transformed/animation-release/res
+com.example.reciperoulette.app-lifecycle-runtime-2.6.2-4 /Users/ronazfarahmand/.gradle/caches/transforms-3/0f9e97bcb0e08fc0321bee17f82f31c2/transformed/lifecycle-runtime-2.6.2/res
+com.example.reciperoulette.app-coil-base-2.4.0-5 /Users/ronazfarahmand/.gradle/caches/transforms-3/1137f801c850e0ac9624c6df3d08107a/transformed/coil-base-2.4.0/res
+com.example.reciperoulette.app-room-runtime-2.5.2-6 /Users/ronazfarahmand/.gradle/caches/transforms-3/113e7d9bfed3a644b14cc1f231afb748/transformed/room-runtime-2.5.2/res
+com.example.reciperoulette.app-profileinstaller-1.3.1-7 /Users/ronazfarahmand/.gradle/caches/transforms-3/14db058e2220252b5df346797df19bc8/transformed/profileinstaller-1.3.1/res
+com.example.reciperoulette.app-ui-tooling-data-release-8 /Users/ronazfarahmand/.gradle/caches/transforms-3/1af14353247e86e65c72ae75c0719d61/transformed/ui-tooling-data-release/res
+com.example.reciperoulette.app-ui-tooling-release-9 /Users/ronazfarahmand/.gradle/caches/transforms-3/1c1cf5c977a91e131add30fe4d5be702/transformed/ui-tooling-release/res
+com.example.reciperoulette.app-room-ktx-2.5.2-10 /Users/ronazfarahmand/.gradle/caches/transforms-3/1d27e73937e45de64fbcd731d8fd0523/transformed/room-ktx-2.5.2/res
+com.example.reciperoulette.app-sqlite-framework-2.3.1-11 /Users/ronazfarahmand/.gradle/caches/transforms-3/20a21c4f1364a74f80899cc5ae450e61/transformed/sqlite-framework-2.3.1/res
+com.example.reciperoulette.app-savedstate-ktx-1.2.1-12 /Users/ronazfarahmand/.gradle/caches/transforms-3/2527607311eac3af7574fc313b7a4173/transformed/savedstate-ktx-1.2.1/res
+com.example.reciperoulette.app-activity-ktx-1.8.0-13 /Users/ronazfarahmand/.gradle/caches/transforms-3/27989884399cce397e10ce580062b56b/transformed/activity-ktx-1.8.0/res
+com.example.reciperoulette.app-ui-graphics-release-14 /Users/ronazfarahmand/.gradle/caches/transforms-3/302e9d211e5ea31bbf30caf861895412/transformed/ui-graphics-release/res
+com.example.reciperoulette.app-navigation-common-ktx-2.7.4-15 /Users/ronazfarahmand/.gradle/caches/transforms-3/3a0eae1a5742027bdf3b55f50b1e3c78/transformed/navigation-common-ktx-2.7.4/res
+com.example.reciperoulette.app-foundation-layout-release-16 /Users/ronazfarahmand/.gradle/caches/transforms-3/436a664ffcf3f66923abf0cac32a9961/transformed/foundation-layout-release/res
+com.example.reciperoulette.app-activity-1.8.0-17 /Users/ronazfarahmand/.gradle/caches/transforms-3/44419cda2ca4c3f63049c1f3c91c803f/transformed/activity-1.8.0/res
+com.example.reciperoulette.app-ui-unit-release-18 /Users/ronazfarahmand/.gradle/caches/transforms-3/47176b26827878042bbc1fd18454c3a2/transformed/ui-unit-release/res
+com.example.reciperoulette.app-fragment-1.5.1-19 /Users/ronazfarahmand/.gradle/caches/transforms-3/49ebaacb61b1d2dcbfda2c17acdbfe64/transformed/fragment-1.5.1/res
+com.example.reciperoulette.app-emoji2-1.3.0-20 /Users/ronazfarahmand/.gradle/caches/transforms-3/55405d309c9ae6a1f42b761be743a3c6/transformed/emoji2-1.3.0/res
+com.example.reciperoulette.app-lifecycle-viewmodel-savedstate-2.6.2-21 /Users/ronazfarahmand/.gradle/caches/transforms-3/592e0f671187fa10af37d93259cadd05/transformed/lifecycle-viewmodel-savedstate-2.6.2/res
+com.example.reciperoulette.app-navigation-common-2.7.4-22 /Users/ronazfarahmand/.gradle/caches/transforms-3/63e6edfb75f9feb06a66d10113986cac/transformed/navigation-common-2.7.4/res
+com.example.reciperoulette.app-navigation-runtime-2.7.4-23 /Users/ronazfarahmand/.gradle/caches/transforms-3/6e0919ed046003a70b9ca1614c742925/transformed/navigation-runtime-2.7.4/res
+com.example.reciperoulette.app-material-release-24 /Users/ronazfarahmand/.gradle/caches/transforms-3/79dc25c9e2b3b2c7bbd55f7b38e0022a/transformed/material-release/res
+com.example.reciperoulette.app-navigation-runtime-ktx-2.7.4-25 /Users/ronazfarahmand/.gradle/caches/transforms-3/86510f066ab36af73e677d7c508587bf/transformed/navigation-runtime-ktx-2.7.4/res
+com.example.reciperoulette.app-lifecycle-process-2.6.2-26 /Users/ronazfarahmand/.gradle/caches/transforms-3/8d72ff116a6c95752bb526c2eac2b9fe/transformed/lifecycle-process-2.6.2/res
+com.example.reciperoulette.app-animation-core-release-27 /Users/ronazfarahmand/.gradle/caches/transforms-3/8f40513afa48c1731c5328d8787aaee1/transformed/animation-core-release/res
+com.example.reciperoulette.app-ui-geometry-release-28 /Users/ronazfarahmand/.gradle/caches/transforms-3/9a0681872c0b9ccfdabcee6022d6f9c9/transformed/ui-geometry-release/res
+com.example.reciperoulette.app-lifecycle-livedata-2.6.2-29 /Users/ronazfarahmand/.gradle/caches/transforms-3/9aa1c3761676fbc32b245f964902b18a/transformed/lifecycle-livedata-2.6.2/res
+com.example.reciperoulette.app-material3-release-30 /Users/ronazfarahmand/.gradle/caches/transforms-3/ab996a6906718e91029fd343a502bafb/transformed/material3-release/res
+com.example.reciperoulette.app-core-runtime-2.2.0-31 /Users/ronazfarahmand/.gradle/caches/transforms-3/ba0f4d6383fe5454750d948729bd2504/transformed/core-runtime-2.2.0/res
+com.example.reciperoulette.app-annotation-experimental-1.3.0-32 /Users/ronazfarahmand/.gradle/caches/transforms-3/bb2c29d2e9b6b9e7a56bd9d834136c17/transformed/annotation-experimental-1.3.0/res
+com.example.reciperoulette.app-runtime-saveable-release-33 /Users/ronazfarahmand/.gradle/caches/transforms-3/c337e8dba3fe918422e34ea568d9782b/transformed/runtime-saveable-release/res
+com.example.reciperoulette.app-appcompat-resources-1.6.1-34 /Users/ronazfarahmand/.gradle/caches/transforms-3/c4e9bbe5dd8d53775a6e9afe3033cf67/transformed/appcompat-resources-1.6.1/res
+com.example.reciperoulette.app-core-ktx-1.12.0-35 /Users/ronazfarahmand/.gradle/caches/transforms-3/c53cfa47660210f1c3a03eceee49df0b/transformed/core-ktx-1.12.0/res
+com.example.reciperoulette.app-savedstate-1.2.1-36 /Users/ronazfarahmand/.gradle/caches/transforms-3/c648b13e2ce3fe02017488d1377d9a75/transformed/savedstate-1.2.1/res
+com.example.reciperoulette.app-lifecycle-viewmodel-compose-2.6.2-37 /Users/ronazfarahmand/.gradle/caches/transforms-3/c72764f516e572a0aad587ee78b60a0f/transformed/lifecycle-viewmodel-compose-2.6.2/res
+com.example.reciperoulette.app-ui-text-release-38 /Users/ronazfarahmand/.gradle/caches/transforms-3/d15e17ef7f37581e8a02c02f517927e2/transformed/ui-text-release/res
+com.example.reciperoulette.app-material-icons-core-release-39 /Users/ronazfarahmand/.gradle/caches/transforms-3/d3e40ae0a4f6c657f57fd966af3b810e/transformed/material-icons-core-release/res
+com.example.reciperoulette.app-ui-test-manifest-1.6.0-alpha07-40 /Users/ronazfarahmand/.gradle/caches/transforms-3/d575312c861ceed5f42cbebf2c7f899d/transformed/ui-test-manifest-1.6.0-alpha07/res
+com.example.reciperoulette.app-core-1.12.0-41 /Users/ronazfarahmand/.gradle/caches/transforms-3/d63cfdd9e2638a0668141b1f1e748c38/transformed/core-1.12.0/res
+com.example.reciperoulette.app-customview-poolingcontainer-1.0.0-42 /Users/ronazfarahmand/.gradle/caches/transforms-3/d7d710009ed8702bcb1433b916203968/transformed/customview-poolingcontainer-1.0.0/res
+com.example.reciperoulette.app-material-ripple-release-43 /Users/ronazfarahmand/.gradle/caches/transforms-3/de9e5e3b4519b363a43f33e8c9988a8c/transformed/material-ripple-release/res
+com.example.reciperoulette.app-foundation-release-44 /Users/ronazfarahmand/.gradle/caches/transforms-3/dfcd9e5d2a4d4daec373ad8019b810d6/transformed/foundation-release/res
+com.example.reciperoulette.app-sqlite-2.3.1-45 /Users/ronazfarahmand/.gradle/caches/transforms-3/e328535911351efbc84a9d8638edb72e/transformed/sqlite-2.3.1/res
+com.example.reciperoulette.app-startup-runtime-1.1.1-46 /Users/ronazfarahmand/.gradle/caches/transforms-3/e45ee7f768c20a3078aac77638a8e1c5/transformed/startup-runtime-1.1.1/res
+com.example.reciperoulette.app-lifecycle-viewmodel-ktx-2.6.2-47 /Users/ronazfarahmand/.gradle/caches/transforms-3/e562103881a1d6198d4ad6a60a29916c/transformed/lifecycle-viewmodel-ktx-2.6.2/res
+com.example.reciperoulette.app-lifecycle-runtime-ktx-2.6.2-48 /Users/ronazfarahmand/.gradle/caches/transforms-3/ee29b3ae7f6c9881bd15225c9e13ca2c/transformed/lifecycle-runtime-ktx-2.6.2/res
+com.example.reciperoulette.app-runtime-release-49 /Users/ronazfarahmand/.gradle/caches/transforms-3/f1effa6fd1b44c9999c4c966c9b3e808/transformed/runtime-release/res
+com.example.reciperoulette.app-navigation-compose-2.7.4-50 /Users/ronazfarahmand/.gradle/caches/transforms-3/f3e6360179afe65bd9d0695ca92b307d/transformed/navigation-compose-2.7.4/res
+com.example.reciperoulette.app-lifecycle-viewmodel-2.6.2-51 /Users/ronazfarahmand/.gradle/caches/transforms-3/f49ddbaca8bcaf241161de1380cb2ca6/transformed/lifecycle-viewmodel-2.6.2/res
+com.example.reciperoulette.app-lifecycle-livedata-core-2.6.2-52 /Users/ronazfarahmand/.gradle/caches/transforms-3/f57609363061cd411f4b310ccc576ef3/transformed/lifecycle-livedata-core-2.6.2/res
+com.example.reciperoulette.app-ui-release-53 /Users/ronazfarahmand/.gradle/caches/transforms-3/f88e24303aac53e61a9d9ea921497430/transformed/ui-release/res
+com.example.reciperoulette.app-resValues-54 /Users/ronazfarahmand/Desktop/Recipe Roulette/app/build/generated/res/resValues/debug
+com.example.reciperoulette.app-packageDebugResources-55 /Users/ronazfarahmand/Desktop/Recipe Roulette/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.example.reciperoulette.app-packageDebugResources-56 /Users/ronazfarahmand/Desktop/Recipe Roulette/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.example.reciperoulette.app-merged_res-57 /Users/ronazfarahmand/Desktop/Recipe Roulette/app/build/intermediates/merged_res/debug
+com.example.reciperoulette.app-debug-58 /Users/ronazfarahmand/Desktop/Recipe Roulette/app/src/debug/res
+com.example.reciperoulette.app-main-59 /Users/ronazfarahmand/Desktop/Recipe Roulette/app/src/main/res

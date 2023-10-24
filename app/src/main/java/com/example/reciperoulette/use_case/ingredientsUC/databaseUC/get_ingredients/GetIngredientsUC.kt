@@ -1,6 +1,6 @@
 package com.example.reciperoulette.use_case.ingredientsUC.databaseUC.get_ingredients
 
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
+import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.Filter
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 import com.example.reciperoulette.repositories.ingredientsRepository.IngredientsRepository
 import kotlinx.coroutines.flow.Flow

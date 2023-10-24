@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApiModule {
     private const val baseURL = "https://api.openai.com"
-    private const val connectionTimeout = 60L
+    private const val connectionTimeout = 120L
 
     @Singleton
     @Provides

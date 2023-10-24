@@ -1,14 +1,14 @@
 package com.example.reciperoulette.repositories.ingredientsRepository
 
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
+import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.Filter
 import com.example.reciperoulette.api.ApiService
 import com.example.reciperoulette.api.request.Message
 import com.example.reciperoulette.api.request.Request
 import com.example.reciperoulette.api.response.Completion
 import com.example.reciperoulette.api.response.Resource
-import com.example.reciperoulette.database.ingredients.CategoryDetail
-import com.example.reciperoulette.database.ingredients.IngredientDetail
-import com.example.reciperoulette.database.ingredients.dao.IngredientsDao
+import com.example.reciperoulette.database.ingredients.details.CategoryDetail
+import com.example.reciperoulette.database.ingredients.details.IngredientDetail
+import com.example.reciperoulette.database.ingredients.dao.IngredientDao
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 import com.example.reciperoulette.dependencyInjection.IoDispatcher
 import com.example.reciperoulette.repositories.apiCallHandling.ApiHandleRepository
@@ -20,8 +20,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class IngredientsRepositoryImpl @Inject constructor(
-    private val ingredientsDao: IngredientsDao,
-    private val recipeApi: ApiService,
+    private val ingredientDao: IngredientDao,
+    private val ingredientApi: ApiService,
     @IoDispatcher ioDispatcher: CoroutineDispatcher
 ) : IngredientsRepository, ApiHandleRepository(ioDispatcher) {
 
@@ -52,7 +52,7 @@ class IngredientsRepositoryImpl @Inject constructor(
             "Please only return the key value pairs in JSON format."
 
     override fun getIngredients(filter: Filter, searchText: String): Flow<List<Ingredient>> {
-        return ingredientsDao.getIngredients(
+        return ingredientDao.getIngredients(
             isVegetarian = filter.vegetarian,
             isPescatarian = filter.pescatarian,
             isNutFree = filter.nutFree,
@@ -62,21 +62,21 @@ class IngredientsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun upsertIngredient(ingredient: Ingredient) {
-        return withContext(ioDispatcher) {
-            ingredientsDao.upsertIngredient(ingredient)
+        withContext(ioDispatcher) {
+            ingredientDao.upsertIngredient(ingredient)
         }
     }
 
     override suspend fun deleteIngredient(ingredient: Ingredient) {
-        return withContext(ioDispatcher) {
-            ingredientsDao.deleteIngredient(ingredient)
+        withContext(ioDispatcher) {
+            ingredientDao.deleteIngredient(ingredient)
         }
     }
 
     override suspend fun validateIngredient(ingredient: String): Resource<Completion> {
         val reqContent = "$verifyIngredientReq\nitem name is (either ingredient or not): $ingredient"
         val request = Request(messages = arrayOf(Message(content = reqContent)))
-        val apiPostReqFunc: ApiPostReqFunc<Completion> = { req -> recipeApi.getData(req) }
+        val apiPostReqFunc: ApiPostReqFunc<Completion> = { req -> ingredientApi.getData(req) }
         return apiPostReq(apiPostReqFunc, request)
     }
 

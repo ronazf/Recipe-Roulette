@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
-import com.example.reciperoulette.activities.recipeGeneratorActivity.RecipeGeneratorActivity
 
 @Composable
 fun ItemRow(
@@ -35,7 +34,7 @@ fun ItemRow(
         Box(
             modifier = Modifier
                 .constrainAs(itemBox) {
-                    top.linkTo(parent.top, margin = RecipeGeneratorActivity.ITEM_ROW_MARGIN)
+                    top.linkTo(parent.top, margin = GeneralConstants.ITEM_ROW_MARGIN)
                 }
                 .fillMaxWidth()
                 .height(GeneralConstants.ITEM_SIZE)

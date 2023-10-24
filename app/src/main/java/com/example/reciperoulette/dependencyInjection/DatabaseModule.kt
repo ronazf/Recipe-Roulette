@@ -2,7 +2,8 @@ package com.example.reciperoulette.dependencyInjection
 
 import android.content.Context
 import androidx.room.Room
-import com.example.reciperoulette.database.ingredients.IngredientsDatabase
+import com.example.reciperoulette.database.ingredients.IngredientDatabase
+import com.example.reciperoulette.database.recipes.RecipeDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,19 +15,34 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    private const val ingredientsDBName = "ingredients_database"
+    private const val ingredientDBName = "ingredient_database"
+    private const val recipeDBName = "recipe_database"
 
     @Singleton
     @Provides
-    fun provideIngredientsDatabase(
+    fun provideIngredientDatabase(
         @ApplicationContext context: Context
     ) = Room.databaseBuilder(
         context,
-        IngredientsDatabase::class.java,
-        ingredientsDBName
+        IngredientDatabase::class.java,
+        ingredientDBName
     ).createFromAsset("database/ingredients.db").build()
 
     @Singleton
     @Provides
-    fun provideIngredientsDao(database: IngredientsDatabase) = database.ingredientDao()
+    fun provideRecipeDatabase(
+        @ApplicationContext context: Context
+    ) = Room.databaseBuilder(
+        context,
+        RecipeDatabase::class.java,
+        recipeDBName
+    ).createFromAsset("database/recipes.db").build()
+
+    @Singleton
+    @Provides
+    fun provideIngredientDao(database: IngredientDatabase) = database.ingredientDao()
+
+    @Singleton
+    @Provides
+    fun provideRecipeDao(database: RecipeDatabase) = database.recipeDao()
 }

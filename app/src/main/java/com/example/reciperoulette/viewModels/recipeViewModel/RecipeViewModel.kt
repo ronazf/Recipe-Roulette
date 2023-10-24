@@ -1,125 +1,87 @@
 package com.example.reciperoulette.viewModels.recipeViewModel
 
 import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientEvent
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientState
+import com.example.reciperoulette.activities.screens.recipeScreen.userActions.RecipeEvent
+import com.example.reciperoulette.activities.screens.recipeScreen.userActions.RecipeState
 import com.example.reciperoulette.api.response.Resource
-import com.example.reciperoulette.database.ingredients.CategoryDetail
-import com.example.reciperoulette.database.ingredients.InvalidCategoryException
-import com.example.reciperoulette.repositories.recipeRepository.RecipeRepositoryImpl
-import com.example.reciperoulette.database.ingredients.entities.Ingredient
-import com.example.reciperoulette.use_case.ingredientsUC.IngredientsUseCases
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.example.reciperoulette.database.recipes.entities.Recipe
+import com.example.reciperoulette.use_case.recipesUC.RecipesUseCases
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-// TODO: check state race condition with multiple updates
-@OptIn(ExperimentalCoroutinesApi::class)
-class RecipeViewModel @Inject constructor(
-    private val recipeRepo: RecipeRepositoryImpl,
-    private val ingredientUC: IngredientsUseCases
+class RecipeViewModel @AssistedInject constructor(
+    private val recipeUC: RecipesUseCases,
+    @Assisted private val selectedIngredients: List<String>
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(selectedIngredients: List<String>): RecipeViewModel
+    }
     companion object {
         const val UNKNOWN_ERROR = "An unknown error has occurred."
-        const val DUPLICATE_INGREDIENT = "This ingredient is already in your ingredient list."
-        const val INGREDIENT_ADDED =
-            "Custom ingredient was successfully added to your ingredient list."
+        const val DUPLICATE_RECIPE = "This recipe is already in your saved recipe list."
+        const val RECIPE_ADDED =
+            "Recipe was successfully added to your recipe list."
+        private const val SAFE_WAIT = 5000L
+
+        fun provideRecipeViewModelFactory(factory: Factory, selectedIngredients: List<String>): ViewModelProvider.Factory {
+            return object: ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return factory.create(selectedIngredients) as T
+                }
+            }
+        }
     }
 
-    private val _searchText = MutableStateFlow("")
-    private val _filter = MutableStateFlow(Filter())
-    private val _ingredients = combine(_searchText, _filter) { searchText, filter ->
-        Pair(searchText, filter)
-    }.flatMapLatest { (searchText, filter) ->
-        ingredientUC.getIngredients(filter = filter, searchText = searchText)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    private val _state = MutableStateFlow(RecipeState())
+    val state: StateFlow<RecipeState> = _state
 
-    private val _state = MutableStateFlow(IngredientState())
-    val state = combine(
-        _state,
-        _searchText,
-        _filter,
-        _ingredients
-    ) { state, searchText, filter, ingredients ->
-        state.copy(
-            ingredients = ingredients,
-            mappedIngredients = ingredients
-                .groupBy { ingredient ->
-                    CategoryDetail.values().find { category ->
-                        category.id == ingredient.categoryId.toInt()
-                    } ?: throw InvalidCategoryException("")
-                },
-            searchText = searchText,
-            filter = filter
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IngredientState())
+    init {
+        getRecipe(selectedIngredients)
+    }
 
-    fun onIngredientEvent(event: IngredientEvent) {
+    fun onRecipeEvent(event: RecipeEvent) {
         when (event) {
-            is IngredientEvent.AddIngredient -> {
+
+            is RecipeEvent.AddRecipeStep -> {
+                val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
+                updatedRecipe?.add(
+                    event.recipeStep.stepNumber?.minus(1) ?: 0,
+                    event.recipeStep
+                )
                 _state.update {
                     it.copy(
-                        verifyingIngredient = true,
-                        ingredientName = event.name
-                    )
-                }
-                verifyIngredient()
-            }
-
-            is IngredientEvent.FilterIngredients -> {
-                _filter.value = event.filter
-            }
-
-            is IngredientEvent.RemoveIngredient -> {
-                _ingredients.value.find {
-                    it.ingredientName == event.ingredientName
-                }?.let {
-                    deleteIngredient(it)
-                }
-            }
-
-            is IngredientEvent.SelectIngredient -> {
-                val updatedSelection = _state.value.selectedIngredients.toMutableList()
-                updatedSelection.add(event.name)
-                updatedSelection.sort()
-                _state.update {
-                    it.copy(
-                        selectedIngredients = updatedSelection.toList()
+                        recipe = updatedRecipe?.toList()?.let { steps ->
+                            _state.value.recipe?.copy(
+                                steps = steps
+                            )
+                        }
                     )
                 }
             }
 
-            is IngredientEvent.RemoveSelectedIngredient -> {
-                val updatedSelection = _state.value.selectedIngredients.toMutableList()
-                updatedSelection.remove(event.name)
-                updatedSelection.sort()
-                _state.update {
-                    it.copy(
-                        selectedIngredients = updatedSelection.toList()
-                    )
-                }
+            RecipeEvent.ShowInfo -> {
+                _state.update { it.copy(
+                    info = true
+                ) }
             }
 
-            is IngredientEvent.SearchIngredient -> {
-                _searchText.value = event.searchText
+            RecipeEvent.DismissInfo -> {
+                _state.update { it.copy(
+                    info = false
+                ) }
             }
 
-            IngredientEvent.ClearSearch -> {
-                _searchText.value = ""
-            }
-
-            IngredientEvent.ClearError -> {
+            RecipeEvent.ClearError -> {
                 _state.update {
                     it.copy(
                         error = ""
@@ -127,96 +89,88 @@ class RecipeViewModel @Inject constructor(
                 }
             }
 
-            IngredientEvent.ClearSuccess -> {
+            RecipeEvent.ClearSuccess -> {
                 _state.update {
                     it.copy(
                         success = ""
                     )
                 }
             }
+            is RecipeEvent.EditRecipe -> {
+                val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
+                updatedRecipe?.set(
+                    event.recipeStep.stepNumber?.minus(1) ?: 0,
+                    event.recipeStep
+                )
+                _state.update {
+                    it.copy(
+                        recipe = updatedRecipe?.toList()?.let { steps ->
+                            _state.value.recipe?.copy(
+                                steps = steps
+                            )
+                        }
+                    )
+                }
+            }
+            RecipeEvent.RegenerateRecipe -> {
+                getRecipe(selectedIngredients)
+            }
+            RecipeEvent.SaveRecipe -> {
+                _state.value.recipe?.let { upsertRecipe(it) }
+            }
         }
     }
 
-    private fun upsertIngredient(ingredient: Ingredient) {
+    private fun upsertRecipe(recipe: Recipe) {
         viewModelScope.launch {
             try {
-                ingredientUC.upsertIngredient(ingredient)
-                _state.update { ingredientState ->
-                    ingredientState.copy(
-                        success = INGREDIENT_ADDED,
+                recipeUC.upsertRecipe(recipe)
+                _state.update { recipeState ->
+                    recipeState.copy(
+                        success = RECIPE_ADDED,
                     )
                 }
             } catch (e: SQLiteConstraintException) {
-                _state.update { ingredientState ->
-                    ingredientState.copy(
-                        error = DUPLICATE_INGREDIENT
+                _state.update { recipeState ->
+                    recipeState.copy(
+                        error = DUPLICATE_RECIPE
                     )
                 }
             }
         }
     }
 
-    private fun deleteIngredient(ingredient: Ingredient) {
+    private fun getRecipe(selectedIngredients: List<String>) {
         viewModelScope.launch {
-            ingredientUC.deleteIngredient(ingredient)
-        }
-    }
-
-    private fun verifyIngredient() {
-        viewModelScope.launch {
-            if (_state.value.ingredients
-                    .map { it.ingredientName.lowercase() }
-                    .contains(_state.value.ingredientName.lowercase())
-            ) {
-                _state.update { ingredientState ->
-                    ingredientState.copy(
-                        verifyingIngredient = false,
-                        error = DUPLICATE_INGREDIENT
-                    )
-                }
-                return@launch
-            }
-            ingredientUC.validateIngredient(_state.value.ingredientName).collect {
+            recipeUC.getRecipe(selectedIngredients).collect {
                 when (it) {
                     is Resource.Error -> {
-                        _state.update { ingredientState ->
-                            ingredientState.copy(
-                                verifyingIngredient = false,
+                        _state.update { recipeState ->
+                            recipeState.copy(
+                                loading = false,
                                 error = it.message?.ifEmpty { UNKNOWN_ERROR } ?: UNKNOWN_ERROR
                             )
                         }
                     }
 
                     is Resource.Loading -> {
-                        if (!_state.value.verifyingIngredient) {
-                            _state.update { ingredientState ->
-                                ingredientState.copy(
-                                    verifyingIngredient = true
-                                )
-                            }
+                        _state.update { recipeState ->
+                            recipeState.copy(
+                                loading = true
+                            )
                         }
                     }
 
                     is Resource.Success -> {
-                        _state.update { ingredientState ->
-                            ingredientState.copy(
-                                verifyingIngredient = false,
+                        _state.update { recipeState ->
+                            recipeState.copy(
+                                loading = false,
+                                recipe = it.data
                             )
-                        }
-                        it.data?.let { ingredient ->
-                            upsertIngredient(ingredient)
                         }
                     }
                 }
             }
-        }
-    }
-
-    private fun getRecipe() {
-        viewModelScope.launch {
-            val response = recipeRepo.getRecipe(
-                _state.value.selectedIngredients
-            )
         }
     }
 }

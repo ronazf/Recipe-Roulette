@@ -14,23 +14,18 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RecipeRulette"
+        android:theme="@style/Theme.RecipeRoulette"
         tools:targetApi="31">
         <activity
-            android:name="com.example.reciperoulette.activities.homeActivity.HomeActivity"
+            android:name="com.example.reciperoulette.activities.mainActivity.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.RecipeRulette">
+            android:windowSoftInputMode="adjustNothing"
+            android:theme="@style/Theme.RecipeRoulette">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.example.reciperoulette.activities.recipeGeneratorActivity.RecipeGeneratorActivity"
-            android:windowSoftInputMode="adjustNothing"
-            android:exported="true"
-            android:theme="@style/Theme.RecipeRulette">
         </activity>
     </application>
 

@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import com.example.reciperoulette.activities.GeneralConstants
 import com.example.reciperoulette.activities.components.filter.FilterDetail
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.Filter
-import com.example.reciperoulette.activities.recipeGeneratorActivity.userActions.IngredientEvent
+import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.Filter
+import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.IngredientEvent
 
 @Composable
 fun FilterTab(
