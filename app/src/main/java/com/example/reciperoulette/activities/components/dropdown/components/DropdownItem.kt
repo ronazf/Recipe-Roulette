@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
 import com.example.reciperoulette.activities.components.alertDialog.components.CancelableAlertDialog
-import com.example.reciperoulette.activities.components.showWarning
+import com.example.reciperoulette.activities.components.ShowWarning
 
 @Composable
 fun DropDownItem(
@@ -78,10 +78,9 @@ fun DropDownItem(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     if (name in selectedItems) {
-                        showWarning(
+                        ShowWarning(
                             context,
-                            ingredientAlreadySelected,
-                            Toast.LENGTH_SHORT
+                            ingredientAlreadySelected
                         )
                         return@DropdownMenuItem
                     }
@@ -113,6 +112,9 @@ fun ConfirmIngredientRemove(
         modifier = Modifier.fillMaxWidth(),
         onConfirm = onConfirm,
         onCancel = onCancel,
+        iconImage = painterResource(id = R.drawable.remove_shopping_cart),
+        iconDescription = stringResource(id = R.string.remove_shopping_cart),
+        title = stringResource(id = R.string.remove_ingredient),
         questionText = stringResource(
             id = R.string.confirm_remove_ingredient
         ) + "\n\n" + name

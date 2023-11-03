@@ -106,7 +106,6 @@ class GetRecipeUC @Inject constructor(
             val obj = array.getJSONObject(i)
             steps.add(
                 RecipeStep(
-                    stepNumber = obj.getInt(RecipeStepDetail.STEP.strName),
                     instructions = obj.getString(RecipeStepDetail.INSTRUCTIONS.strName),
                     minutes = obj.getInt(RecipeStepDetail.MINUTES.strName)
                 )

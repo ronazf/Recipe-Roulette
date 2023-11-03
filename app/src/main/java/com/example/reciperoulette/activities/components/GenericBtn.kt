@@ -30,7 +30,8 @@ fun GenericBtn(
     width: Float = HomeConstants.BUTTON_WIDTH,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     image: @Composable (() -> Unit)? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     Button(
         modifier = modifier
@@ -42,7 +43,8 @@ fun GenericBtn(
             containerColor = containerColor,
             contentColor = contentColor
         ),
-        contentPadding = contentPadding
+        contentPadding = contentPadding,
+        enabled = enabled
     ) {
         Row (
             modifier = Modifier.fillMaxWidth(),

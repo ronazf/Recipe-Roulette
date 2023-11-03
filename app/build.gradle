@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "com.example.reciperulette"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -57,7 +57,7 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$m3_version"
+    implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.activity:activity-compose:1.8.0'
@@ -71,10 +71,11 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     implementation "io.coil-kt:coil-compose:2.4.0"
     implementation "io.coil-kt:coil-gif:2.4.0"
-    implementation 'androidx.compose.material3:material3-android:1.2.0-alpha10'
+    implementation "androidx.compose.material3:material3:$m3_version"
+    implementation "androidx.compose.material3:material3-window-size-class:$m3_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
-    implementation 'com.google.code.gson:gson:2.10.1'
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
+    implementation 'com.google.code.gson:gson:2.10.1'
     annotationProcessor "androidx.room:room-compiler:$room_version"
     ksp "androidx.room:room-compiler:$room_version"
     ksp "com.google.dagger:hilt-compiler:$hilt_version"

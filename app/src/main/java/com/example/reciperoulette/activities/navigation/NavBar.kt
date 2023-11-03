@@ -25,7 +25,7 @@ fun NavBar(navController: NavController) {
 
     NavigationBar(
         containerColor = colorResource(id = R.color.navigation_bar),
-        contentColor = colorResource(id = R.color.black),
+        contentColor = colorResource(id = R.color.black)
     ) {
         NavBarItem::class.nestedClasses
             .filter { it.isSubclassOf(NavBarItem::class) }

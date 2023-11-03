@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -30,6 +31,9 @@ import com.example.reciperoulette.activities.GeneralConstants
 fun SearchTab(
     modifier: Modifier,
     color: Color,
+    shape: Shape = RectangleShape,
+    placeHolder: String,
+    value: String = "",
     filterIcon: Painter,
     filterIconDescription: String,
     onFilter: () -> Unit,
@@ -44,18 +48,19 @@ fun SearchTab(
                 .fillMaxWidth()
                 .height(GeneralConstants.ITEM_SIZE)
                 .shadow(
+                    shape = shape,
                     elevation = GeneralConstants.DROP_SHADOW_ELEVATION
                 )
-                .clip(RectangleShape)
+                .clip(shape)
                 .background(color)
         ) {
             CustomTextField(
                 modifier = modifier
                     .height(GeneralConstants.ITEM_SIZE)
                     .clip(shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING)),
-                value = "",
+                value = value,
                 onValueChange = onValueChange,
-                placeHolder = stringResource(id = R.string.search_ingredient),
+                placeHolder = placeHolder,
                 leadingIcon = { onClick ->
                     Icon(
                         modifier = Modifier

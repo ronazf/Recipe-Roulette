@@ -3,10 +3,10 @@ package com.example.reciperoulette.activities.components
 import android.content.Context
 import android.widget.Toast
 
-fun showWarning(
+fun ShowWarning(
     context: Context,
     message: String,
-    length: Int
+    length: Int = Toast.LENGTH_SHORT
 ) {
     Toast.makeText(context, message, length).show()
 }

@@ -1,22 +1,19 @@
 package com.example.reciperoulette.activities.screens.recipeScreen
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -31,25 +28,26 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
 import com.example.reciperoulette.activities.components.GenericBtn
-import com.example.reciperoulette.activities.components.Loading
+import com.example.reciperoulette.activities.components.ShowWarning
 import com.example.reciperoulette.activities.components.Title
 import com.example.reciperoulette.activities.components.alertDialog.components.ErrorAlertDialog
 import com.example.reciperoulette.activities.components.alertDialog.components.InfoAlertDialog
 import com.example.reciperoulette.activities.components.alertDialog.components.SuccessAlertDialog
 import com.example.reciperoulette.activities.components.image.components.BackgroundImage
 import com.example.reciperoulette.activities.screens.homeScreen.HomeConstants
-import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.IngredientEvent
 import com.example.reciperoulette.activities.screens.recipeScreen.userActions.RecipeEvent
 import com.example.reciperoulette.activities.screens.recipeScreen.userActions.RecipeState
 import com.example.reciperoulette.database.recipes.RecipeStep
@@ -60,7 +58,10 @@ import com.example.reciperoulette.database.recipes.entities.Recipe
 fun RecipeScreen(
     state: RecipeState,
     onRecipeEvent: (RecipeEvent) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    onLoad: (resource: Int, resourceDescription: String) -> Unit,
+    onResult: () -> Unit,
+    generated: Boolean = false
 ) {
     var blurRadius by remember { mutableStateOf(GeneralConstants.UN_BLUR_RADIUS) }
 
@@ -69,7 +70,7 @@ fun RecipeScreen(
             .pointerInteropFilter { state.loading }
             .blur(blurRadius)
     ) {
-        val (title, backBtn, infoIcon, backgroundImage, recipe, regenerateBtn, saveBtn) = createRefs()
+        val (title, backBtn, backgroundImage, recipe, regenerateBtn, saveBtn) = createRefs()
 
         Title(
             modifier = Modifier.constrainAs(title) {
@@ -83,8 +84,14 @@ fun RecipeScreen(
         Icon(
             modifier = Modifier
                 .constrainAs(backBtn) {
-                    top.linkTo(parent.top, margin = 35.dp)
-                    absoluteLeft.linkTo(parent.absoluteLeft, margin = 5.dp)
+                    top.linkTo(
+                        parent.top,
+                        margin = RecipeConstants.BACK_BUTTON_TOP_MARGIN
+                    )
+                    absoluteLeft.linkTo(
+                        parent.absoluteLeft,
+                        margin = RecipeConstants.BACK_BUTTON_LEFT_MARGIN
+                    )
                 }
                 .clickable { navigateBack() },
             painter = painterResource(id = R.drawable.back),
@@ -117,47 +124,50 @@ fun RecipeScreen(
             )
         }
 
-        GenericBtn(
-            modifier = Modifier.constrainAs(regenerateBtn) {
-                bottom.linkTo(saveBtn.top)
-                absoluteLeft.linkTo(parent.absoluteLeft)
-                absoluteRight.linkTo(parent.absoluteRight)
-            },
-            text = stringResource(id = R.string.regenerate_recipe),
-            containerColor = colorResource(id = R.color.dark_pink),
-            contentColor = colorResource(id = R.color.black),
-            shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
-            fontSize = HomeConstants.BUTTON_FONT_SIZE,
-            onClick = {
-                onRecipeEvent(RecipeEvent.RegenerateRecipe)
-            }
-        )
+        if (generated) {
+            GenericBtn(
+                modifier = Modifier.constrainAs(regenerateBtn) {
+                    bottom.linkTo(saveBtn.top)
+                    absoluteLeft.linkTo(parent.absoluteLeft)
+                    absoluteRight.linkTo(parent.absoluteRight)
+                },
+                text = stringResource(id = R.string.regenerate_recipe),
+                containerColor = colorResource(id = R.color.dark_pink),
+                contentColor = colorResource(id = R.color.black),
+                shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
+                fontSize = HomeConstants.BUTTON_FONT_SIZE,
+                onClick = {
+                    onRecipeEvent(RecipeEvent.RegenerateRecipe)
+                }
+            )
 
-        GenericBtn(
-            modifier = Modifier.constrainAs(saveBtn) {
-                bottom.linkTo(parent.bottom, margin = RecipeConstants.CLICKABLE_MARGIN)
-                absoluteLeft.linkTo(parent.absoluteLeft)
-                absoluteRight.linkTo(parent.absoluteRight)
-            },
-            text = stringResource(id = R.string.save_recipe),
-            containerColor = colorResource(id = R.color.green),
-            contentColor = colorResource(id = R.color.black),
-            shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
-            fontSize = HomeConstants.BUTTON_FONT_SIZE,
-            onClick = {
-                onRecipeEvent(RecipeEvent.SaveRecipe)
-            }
-        )
+            GenericBtn(
+                modifier = Modifier.constrainAs(saveBtn) {
+                    bottom.linkTo(parent.bottom, margin = RecipeConstants.DISPLAYED_MARGIN)
+                    absoluteLeft.linkTo(parent.absoluteLeft)
+                    absoluteRight.linkTo(parent.absoluteRight)
+                },
+                text = stringResource(id = R.string.save_recipe),
+                containerColor = colorResource(id = R.color.green),
+                contentColor = colorResource(id = R.color.black),
+                shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
+                fontSize = HomeConstants.BUTTON_FONT_SIZE,
+                onClick = {
+                    onRecipeEvent(RecipeEvent.SaveRecipe)
+                }
+            )
+        }
     }
 
-    if (state.loading) {
-        blurRadius = GeneralConstants.BLUR_RADIUS
-        Loading(
-            resource = R.drawable.apple,
-            resourceDescription = stringResource(id = R.string.apple_animation)
+    blurRadius = if (state.loading) {
+        onLoad(
+            R.drawable.apple,
+            stringResource(id = R.string.apple_animation)
         )
+        GeneralConstants.BLUR_RADIUS
     } else {
-        blurRadius = GeneralConstants.UN_BLUR_RADIUS
+        onResult()
+        GeneralConstants.UN_BLUR_RADIUS
     }
 
     if (state.info) {
@@ -200,17 +210,38 @@ fun RecipeDetails(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth(0.9F),
+            .fillMaxWidth(RecipeConstants.ROW_ITEM_WIDTH),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
+        Row(
             modifier = Modifier
-                .align(Alignment.End)
-                .padding(GeneralConstants.IMAGE_TEXT_PADDING)
-                .clickable { onRecipeEvent(RecipeEvent.ShowInfo) },
-            painter = painterResource(id = R.drawable.info),
-            contentDescription = stringResource(id = R.string.info)
-        )
+                .fillMaxWidth()
+                .padding(GeneralConstants.IMAGE_TEXT_PADDING),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            recipe.link?.let {
+                val clipBoardManager = LocalClipboardManager.current
+                val context = LocalContext.current
+                val linkCopied = stringResource(id = R.string.link_copy_warning)
+                Icon(
+                    modifier = Modifier
+                        .clickable {
+                            clipBoardManager.setText(AnnotatedString(it))
+                            ShowWarning(context, linkCopied)
+                        },
+                    painter = painterResource(id = R.drawable.copy_link),
+                    contentDescription = stringResource(id = R.string.copy_link)
+                )
+            }
+            if (recipe.link == null) Spacer(modifier = Modifier)
+            Icon(
+                modifier = Modifier
+                    .clickable { onRecipeEvent(RecipeEvent.ShowInfo) },
+                painter = painterResource(id = R.drawable.info),
+                contentDescription = stringResource(id = R.string.info)
+            )
+        }
         RecipeSteps(
             steps = recipe.steps
         )
@@ -225,7 +256,7 @@ fun RecipeInfo(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth(0.9F)
+            .fillMaxWidth(RecipeConstants.ROW_ITEM_WIDTH)
             .padding(GeneralConstants.IMAGE_TEXT_PADDING),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING)
@@ -291,16 +322,16 @@ fun RecipeSteps(
         verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING),
         contentPadding = PaddingValues(vertical = RecipeConstants.IMAGE_TEXT_PADDING)
     ) {
-        items(steps) { step ->
+        itemsIndexed(steps) { index, step ->
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(10),
+                shape = RoundedCornerShape(RecipeConstants.RECIPE_CORNER_ROUNDING),
                 colors = CardDefaults.cardColors(
                     containerColor = colorResource(id = R.color.light_grey)
                 ),
                 elevation = CardDefaults.cardElevation(
-                    defaultElevation = 6.dp
+                    defaultElevation = RecipeConstants.RECIPE_CARD_ELEVATION
                 )
             ) {
                 Row(
@@ -317,20 +348,22 @@ fun RecipeSteps(
                     Text(
                         modifier = Modifier
                             .wrapContentSize(Alignment.TopStart),
-                        text = "Step ${step.stepNumber}",
-                        fontSize = 10.sp,
+                        text = "Step ${index + 1}",
+                        fontSize = RecipeConstants.STEP_FONT_SIZE,
                         textAlign = TextAlign.Start,
                         fontFamily = GeneralConstants.FONT_FAMILY
                     )
-                    Text(
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.TopEnd)
-                            .fillMaxWidth(),
-                        text = "${step.minutes} Minutes",
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.End,
-                        fontFamily = GeneralConstants.FONT_FAMILY
-                    )
+                    step.minutes?.let {
+                        Text(
+                            modifier = Modifier
+                                .wrapContentSize(Alignment.TopEnd)
+                                .fillMaxWidth(),
+                            text = "${step.minutes} Minutes",
+                            fontSize = RecipeConstants.MINUTES_FONT_SIZE,
+                            textAlign = TextAlign.End,
+                            fontFamily = GeneralConstants.FONT_FAMILY
+                        )
+                    }
                 }
                 Text(
                     modifier = Modifier
@@ -348,5 +381,37 @@ fun RecipeSteps(
                 )
             }
         }
+
+        item { Spacer(modifier = Modifier.padding(vertical = RecipeConstants.RECIPE_LIST_SPACER)) }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun DefaultPreview() {
+    val previewState = RecipeState(
+        recipe = Recipe(
+            recipeName = "recipe",
+            ingredients = listOf(),
+            steps = listOf(
+                RecipeStep(
+                    instructions = "instruction1",
+                    minutes = 1
+                ),
+                RecipeStep(
+                    instructions = "instruction2",
+                    minutes = 2
+                )
+            ),
+            link = "some link"
+        )
+    )
+
+    RecipeScreen(
+        state = previewState,
+        onRecipeEvent = {},
+        navigateBack = {},
+        onLoad = { _, _ -> },
+        onResult = {},
+    )
 }

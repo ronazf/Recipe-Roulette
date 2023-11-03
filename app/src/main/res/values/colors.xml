@@ -29,6 +29,6 @@
     <color name="green">#FF61B15A</color>
     <color name="medium_grey">#FFA6AAAC</color>
     <color name="loading_background">#80000000</color>
-    <color name="navigation_bar">#22C3C3C3</color>
-    <color name="transparent">#00FFFFFF</color>
+    <color name="navigation_bar">#D9F3F3F3</color>
+    <color name="transparent">#00F3F3F3</color>
 </resources>

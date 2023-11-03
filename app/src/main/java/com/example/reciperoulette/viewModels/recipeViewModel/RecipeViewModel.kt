@@ -1,7 +1,6 @@
 package com.example.reciperoulette.viewModels.recipeViewModel
 
 import android.database.sqlite.SQLiteConstraintException
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -20,12 +19,14 @@ import kotlinx.coroutines.launch
 
 class RecipeViewModel @AssistedInject constructor(
     private val recipeUC: RecipesUseCases,
-    @Assisted private val selectedIngredients: List<String>
+    @Assisted private val selectedIngredients: List<String>?,
+    @Assisted private val recipeId: Long?
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(selectedIngredients: List<String>): RecipeViewModel
+        fun create(selectedIngredients: List<String>?, recipeId: Long?): RecipeViewModel
     }
+
     companion object {
         const val UNKNOWN_ERROR = "An unknown error has occurred."
         const val DUPLICATE_RECIPE = "This recipe is already in your saved recipe list."
@@ -33,10 +34,14 @@ class RecipeViewModel @AssistedInject constructor(
             "Recipe was successfully added to your recipe list."
         private const val SAFE_WAIT = 5000L
 
-        fun provideRecipeViewModelFactory(factory: Factory, selectedIngredients: List<String>): ViewModelProvider.Factory {
-            return object: ViewModelProvider.Factory {
+        fun provideRecipeViewModelFactory(
+            factory: Factory,
+            selectedIngredients: List<String>? = null,
+            recipeId: Long? = null
+        ): ViewModelProvider.Factory {
+            return object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return factory.create(selectedIngredients) as T
+                    return factory.create(selectedIngredients, recipeId) as T
                 }
             }
         }
@@ -46,16 +51,25 @@ class RecipeViewModel @AssistedInject constructor(
     val state: StateFlow<RecipeState> = _state
 
     init {
-        getRecipe(selectedIngredients)
+        require(selectedIngredients != null || recipeId != null) {
+            _state.update {
+                it.copy(
+                    error = UNKNOWN_ERROR
+                )
+            }
+        }
+        selectedIngredients?.let { getRecipe(selectedIngredients) }
+        recipeId?.let {
+            getRecipeById(recipeId)
+        }
     }
 
     fun onRecipeEvent(event: RecipeEvent) {
         when (event) {
-
             is RecipeEvent.AddRecipeStep -> {
                 val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
                 updatedRecipe?.add(
-                    event.recipeStep.stepNumber?.minus(1) ?: 0,
+                    event.index,
                     event.recipeStep
                 )
                 _state.update {
@@ -70,15 +84,19 @@ class RecipeViewModel @AssistedInject constructor(
             }
 
             RecipeEvent.ShowInfo -> {
-                _state.update { it.copy(
-                    info = true
-                ) }
+                _state.update {
+                    it.copy(
+                        info = true
+                    )
+                }
             }
 
             RecipeEvent.DismissInfo -> {
-                _state.update { it.copy(
-                    info = false
-                ) }
+                _state.update {
+                    it.copy(
+                        info = false
+                    )
+                }
             }
 
             RecipeEvent.ClearError -> {
@@ -96,10 +114,11 @@ class RecipeViewModel @AssistedInject constructor(
                     )
                 }
             }
+
             is RecipeEvent.EditRecipe -> {
                 val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
                 updatedRecipe?.set(
-                    event.recipeStep.stepNumber?.minus(1) ?: 0,
+                    event.index,
                     event.recipeStep
                 )
                 _state.update {
@@ -112,9 +131,11 @@ class RecipeViewModel @AssistedInject constructor(
                     )
                 }
             }
+
             RecipeEvent.RegenerateRecipe -> {
-                getRecipe(selectedIngredients)
+                selectedIngredients?.let { getRecipe(selectedIngredients) }
             }
+
             RecipeEvent.SaveRecipe -> {
                 _state.value.recipe?.let { upsertRecipe(it) }
             }
@@ -127,7 +148,7 @@ class RecipeViewModel @AssistedInject constructor(
                 recipeUC.upsertRecipe(recipe)
                 _state.update { recipeState ->
                     recipeState.copy(
-                        success = RECIPE_ADDED,
+                        success = RECIPE_ADDED
                     )
                 }
             } catch (e: SQLiteConstraintException) {
@@ -136,6 +157,17 @@ class RecipeViewModel @AssistedInject constructor(
                         error = DUPLICATE_RECIPE
                     )
                 }
+            }
+        }
+    }
+
+    private fun getRecipeById(id: Long) {
+        viewModelScope.launch {
+            val recipe = recipeUC.getRecipeById(id)
+            _state.update {
+                it.copy(
+                    recipe = recipe
+                )
             }
         }
     }

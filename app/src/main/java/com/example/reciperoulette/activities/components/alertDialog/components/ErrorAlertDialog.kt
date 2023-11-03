@@ -36,7 +36,7 @@ fun ErrorAlertDialog(
         },
         title = {
             Text(
-                text = stringResource(id = R.string.error_occured),
+                text = stringResource(id = R.string.error_occurred),
                 fontSize = GeneralConstants.BUTTON_FONT_SIZE,
                 fontFamily = GeneralConstants.FONT_FAMILY
             )

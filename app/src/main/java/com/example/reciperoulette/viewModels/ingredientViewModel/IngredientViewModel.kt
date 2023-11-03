@@ -63,7 +63,7 @@ class IngredientViewModel @Inject constructor(
             searchText = searchText,
             filter = filter
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IngredientState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SAFE_WAIT), IngredientState())
 
     fun onIngredientEvent(event: IngredientEvent) {
         when (event) {
@@ -102,10 +102,8 @@ class IngredientViewModel @Inject constructor(
 
             is IngredientEvent.RemoveSelectedIngredient -> {
                 val updatedSelection = _state.value.selectedIngredients.toMutableList()
-                Log.d("success", _state.value.selectedIngredients.toString())
                 updatedSelection.remove(event.name)
                 updatedSelection.sort()
-                Log.d("success", updatedSelection.toString())
                 _state.update {
                     it.copy(
                         selectedIngredients = updatedSelection.toList()

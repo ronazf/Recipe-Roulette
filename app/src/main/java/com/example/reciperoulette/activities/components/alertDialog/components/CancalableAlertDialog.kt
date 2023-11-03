@@ -10,8 +10,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.reciperoulette.R
@@ -23,6 +23,9 @@ fun CancelableAlertDialog(
     modifier: Modifier,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
+    iconImage: Painter,
+    iconDescription: String,
+    title: String,
     questionText: String
 ) {
     AlertDialog(
@@ -31,13 +34,13 @@ fun CancelableAlertDialog(
         shape = RoundedCornerShape(AlertDialogConstants.CORNER_ROUNDING),
         icon = {
             Icon(
-                painter = painterResource(id = R.drawable.remove_shopping_cart),
-                contentDescription = stringResource(id = R.string.remove_shopping_cart)
+                painter = iconImage,
+                contentDescription = iconDescription
             )
         },
         title = {
             Text(
-                text = stringResource(id = R.string.remove_ingredient),
+                text = title,
                 fontSize = GeneralConstants.BUTTON_FONT_SIZE,
                 fontFamily = GeneralConstants.FONT_FAMILY
             )
@@ -77,7 +80,6 @@ fun CancelableAlertDialog(
                 onClick = {
                     onCancel()
                 }
-
             ) {
                 Text(
                     text = stringResource(id = R.string.cancel),

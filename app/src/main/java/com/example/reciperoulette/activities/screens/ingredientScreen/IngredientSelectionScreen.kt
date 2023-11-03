@@ -33,7 +33,6 @@ import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
 import com.example.reciperoulette.activities.components.GenericBtn
 import com.example.reciperoulette.activities.components.ItemRow
-import com.example.reciperoulette.activities.components.Loading
 import com.example.reciperoulette.activities.components.SearchTab
 import com.example.reciperoulette.activities.components.Title
 import com.example.reciperoulette.activities.components.alertDialog.components.ErrorAlertDialog
@@ -42,7 +41,7 @@ import com.example.reciperoulette.activities.components.alertDialog.components.S
 import com.example.reciperoulette.activities.components.dropdown.components.Dropdown
 import com.example.reciperoulette.activities.components.dropdown.components.InnerDropdown
 import com.example.reciperoulette.activities.components.dropdown.components.LayeredDropdown
-import com.example.reciperoulette.activities.components.filter.components.FilterTab
+import com.example.reciperoulette.activities.components.filter.ingredientFilter.components.FilterTab
 import com.example.reciperoulette.activities.components.image.components.BackgroundImage
 import com.example.reciperoulette.activities.screens.homeScreen.HomeConstants
 import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.Filter
@@ -56,7 +55,9 @@ import com.example.reciperoulette.database.ingredients.entities.Ingredient
 fun IngredientSelectionScreen(
     state: IngredientState,
     navigateToRecipe: (String) -> Unit,
-    onIngredientEvent: (IngredientEvent) -> Unit
+    onIngredientEvent: (IngredientEvent) -> Unit,
+    onLoad: (resource: Int, resourceDescription: String) -> Unit,
+    onResult: () -> Unit
 ) {
     var forceCloseDropdown by remember { mutableStateOf(false) }
     var blurRadius by remember { mutableStateOf(GeneralConstants.UN_BLUR_RADIUS) }
@@ -157,18 +158,20 @@ fun IngredientSelectionScreen(
             fontSize = HomeConstants.BUTTON_FONT_SIZE,
             onClick = {
                 navigateToRecipe(state.selectedIngredients.joinToString())
-            }
+            },
+            enabled = state.selectedIngredients.isNotEmpty()
         )
     }
 
     if (state.loading || state.verifyingIngredient) {
+        onLoad(
+            R.drawable.vegetable_bag,
+            stringResource(id = R.string.grocery_bag_animation)
+        )
         blurRadius = GeneralConstants.BLUR_RADIUS
         forceCloseDropdown = true
-        Loading(
-            resource = R.drawable.vegetable_bag,
-            resourceDescription = stringResource(id = R.string.grocery_bag_animation)
-        )
     } else {
+        onResult()
         blurRadius = GeneralConstants.UN_BLUR_RADIUS
         forceCloseDropdown = false
     }
@@ -272,6 +275,7 @@ fun AddSearchFilter(
     SearchTab(
         modifier = Modifier.fillMaxWidth(),
         color = colorResource(id = R.color.white),
+        placeHolder = stringResource(id = R.string.search_ingredient),
         filterIcon = painterResource(id = filterIcon),
         filterIconDescription = stringResource(id = filterIconDescription),
         onFilter = { showFilter = !showFilter }
@@ -366,6 +370,8 @@ fun DefaultPreview() {
     IngredientSelectionScreen(
         navigateToRecipe = {},
         state = previewState,
-        onIngredientEvent = {}
+        onIngredientEvent = {},
+        onLoad = { _, _ -> },
+        onResult = {},
     )
 }

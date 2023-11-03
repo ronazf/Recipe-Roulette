@@ -12,10 +12,13 @@ import com.example.reciperoulette.use_case.ingredientsUC.apiUC.ValidateIngredien
 import com.example.reciperoulette.use_case.ingredientsUC.databaseUC.delete_ingredient.DeleteIngredientUC
 import com.example.reciperoulette.use_case.ingredientsUC.databaseUC.get_ingredients.GetIngredientsUC
 import com.example.reciperoulette.use_case.ingredientsUC.databaseUC.upsert_ingredient.UpsertIngredientUC
+import com.example.reciperoulette.use_case.recipesUC.RecipeLibraryUseCases
 import com.example.reciperoulette.use_case.recipesUC.RecipesUseCases
 import com.example.reciperoulette.use_case.recipesUC.apiUC.GetRecipeUC
 import com.example.reciperoulette.use_case.recipesUC.databaseUC.delete_recipe.DeleteRecipeUC
-import com.example.reciperoulette.use_case.recipesUC.databaseUC.get_recipes.GetRecipesUC
+import com.example.reciperoulette.use_case.recipesUC.databaseUC.favourite_recipe.SetRecipeFavouriteUC
+import com.example.reciperoulette.use_case.recipesUC.databaseUC.get_recipe.GetRecipeByIdUC
+import com.example.reciperoulette.use_case.recipesUC.databaseUC.get_recipe.GetRecipesUC
 import com.example.reciperoulette.use_case.recipesUC.databaseUC.upsert_recipe.UpsertRecipeUC
 import dagger.Module
 import dagger.Provides
@@ -67,10 +70,22 @@ object AppModule {
         recipesRepository: RecipeRepository
     ): RecipesUseCases {
         return RecipesUseCases (
-            getRecipes = GetRecipesUC(recipesRepository),
             getRecipe = GetRecipeUC(recipesRepository),
             upsertRecipe = UpsertRecipeUC(recipesRepository),
-            deleteRecipe = DeleteRecipeUC(recipesRepository)
+            getRecipeById = GetRecipeByIdUC(recipesRepository)
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideLibraryUseCases(
+        recipesRepository: RecipeRepository
+    ): RecipeLibraryUseCases {
+        return RecipeLibraryUseCases (
+            getRecipes = GetRecipesUC(recipesRepository),
+            getRecipe = GetRecipeUC(recipesRepository),
+            deleteRecipe = DeleteRecipeUC(recipesRepository),
+            setRecipeFavourite = SetRecipeFavouriteUC(recipesRepository)
         )
     }
 }

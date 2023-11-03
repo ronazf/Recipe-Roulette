@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
@@ -51,7 +52,9 @@ fun ItemRow(
                     .fillMaxWidth()
                     .align(Alignment.CenterStart)
                     .padding(start = GeneralConstants.IMAGE_TEXT_PADDING),
+                maxLines = 1,
                 text = ingredient,
+                overflow = TextOverflow.Ellipsis,
                 fontSize = GeneralConstants.TEXT_FONT_SIZE,
                 fontFamily = GeneralConstants.FONT_FAMILY
             )

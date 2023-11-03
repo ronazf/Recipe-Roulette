@@ -36,7 +36,7 @@
     <string name="cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>
     <string name="error">Error icon</string>
-    <string name="error_occured">Error</string>
+    <string name="error_occurred">Error</string>
     <string name="success">Success icon</string>
     <string name="process_succeeded">Success</string>
     <string name="remove">Remove icon</string>
@@ -57,4 +57,14 @@
     <string name="info">Info icon</string>
     <string name="show_info">Info</string>
     <string name="library">Recipe Library</string>
+    <string name="search_recipe">Search Recipe</string>
+    <string name="favourite_filled">Filled Favourite Icon</string>
+    <string name="favourite_boarder">Boarder Favourite Icon</string>
+    <string name="remove_recipe">Remove Recipe</string>
+    <string name="confirm_remove_recipe">Are you sure you want to permanently remove the
+        following recipe?</string>
+    <string name="library_remove">Library Remove Icon</string>
+    <string name="open_link">Open Link Icon</string>
+    <string name="copy_link">Copy Link Icon</string>
+    <string name="link_copy_warning">Recipe link copied to clipboard.</string>
 </resources>

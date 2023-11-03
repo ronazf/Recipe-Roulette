@@ -2,7 +2,6 @@ package com.example.reciperoulette.activities.mainActivity
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -13,15 +12,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.reciperoulette.R
+import com.example.reciperoulette.activities.components.Loading
 import com.example.reciperoulette.activities.navigation.NavBar
 import com.example.reciperoulette.activities.screenRoutes.Screen
 import com.example.reciperoulette.activities.screens.homeScreen.HomeScreen
@@ -30,6 +36,7 @@ import com.example.reciperoulette.activities.screens.libraryScreen.LibraryScreen
 import com.example.reciperoulette.activities.screens.recipeScreen.RecipeScreen
 import com.example.reciperoulette.viewModels.ingredientViewModel.IngredientViewModel
 import com.example.reciperoulette.ui.theme.RecipeRuletteTheme
+import com.example.reciperoulette.viewModels.libraryViewModel.LibraryViewModel
 import com.example.reciperoulette.viewModels.recipeViewModel.RecipeViewModel
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -50,6 +57,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            var loading by remember { mutableStateOf(false) }
+            var loadingResource by remember { mutableIntStateOf(R.drawable.grocery_shelf) }
+            var loadingDescription by remember { mutableStateOf("") }
 
             RecipeRuletteTheme {
                 Surface(
@@ -57,6 +67,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(
+                        containerColor = colorResource(id = R.color.transparent),
                         bottomBar = { NavBar(navController = navController) }
                     ) { padding ->
                         NavHost(
@@ -81,14 +92,20 @@ class MainActivity : ComponentActivity() {
                                         state = state,
                                         navigateToRecipe = {
                                             navController.navigate(
-                                                route = Screen.RecipeScreen.route + "/$it"
+                                                route = Screen.RecipeGenerateScreen.route + "/$it"
                                             )
                                         },
-                                        onIngredientEvent = ingredientViewModel::onIngredientEvent
+                                        onIngredientEvent = ingredientViewModel::onIngredientEvent,
+                                        onLoad = { resource, resourceDescription ->
+                                            loading = true
+                                            loadingResource = resource
+                                            loadingDescription = resourceDescription
+                                        },
+                                        onResult = { loading = false },
                                     )
                                 }
                                 composable(
-                                    route = Screen.RecipeScreen.route + "/{selected_ingredients}",
+                                    route = Screen.RecipeGenerateScreen.route + "/{selected_ingredients}",
                                     arguments = listOf(
                                         navArgument("selected_ingredients") {}
                                     )
@@ -96,7 +113,6 @@ class MainActivity : ComponentActivity() {
                                     val selectedIngredients = it.arguments
                                         ?.getString("selected_ingredients")
                                         ?.split(",") ?: emptyList()
-                                    Log.d("success", selectedIngredients.toString())
 
                                     val factory = EntryPointAccessors.fromActivity(
                                         LocalContext.current as Activity,
@@ -115,15 +131,76 @@ class MainActivity : ComponentActivity() {
                                     RecipeScreen(
                                         state = state,
                                         onRecipeEvent = recipeViewModel::onRecipeEvent,
-                                        navigateBack = { navController.popBackStack() }
+                                        navigateBack = { navController.popBackStack() },
+                                        onLoad = { resource, resourceDescription ->
+                                            loading = true
+                                            loadingResource = resource
+                                            loadingDescription = resourceDescription
+                                        },
+                                        onResult = { loading = false },
+                                        generated = true
                                     )
                                 }
                             }
-                            composable(Screen.LibraryScreen.route) {
-                                LibraryScreen()
+                            navigation(
+                                startDestination = Screen.LibraryScreen.route,
+                                route = Screen.LibraryRecipeScreen.route
+                            ) {
+                                composable(Screen.LibraryScreen.route) {
+                                    val libraryViewModel: LibraryViewModel by viewModels()
+                                    val state by libraryViewModel.state.collectAsState()
+
+                                    LibraryScreen(
+                                        state = state,
+                                        navigateToRecipe = {
+                                            navController.navigate(
+                                                route = Screen.RecipeRenderScreen.route + "/$it"
+                                            )
+                                        },
+                                        onLibraryEvent = libraryViewModel::onLibraryEvent
+                                    )
+                                }
+                                composable(
+                                    route = Screen.RecipeRenderScreen.route + "/{recipe_id}",
+                                    arguments = listOf(
+                                        navArgument("recipe_id") { type = NavType.LongType }
+                                    )
+                                ) {
+                                    val recipeId = it.arguments
+                                        ?.getLong("recipe_id")
+
+                                    val factory = EntryPointAccessors.fromActivity(
+                                        LocalContext.current as Activity,
+                                        ViewModelFactoryProvider::class.java
+                                    ).recipeViewModelFactory()
+
+                                    val recipeViewModel: RecipeViewModel = viewModel(
+                                        factory = RecipeViewModel.provideRecipeViewModelFactory(
+                                            factory = factory,
+                                            recipeId = recipeId
+                                        )
+                                    )
+
+                                    val state by recipeViewModel.state.collectAsState()
+
+                                    RecipeScreen(
+                                        state = state,
+                                        onRecipeEvent = recipeViewModel::onRecipeEvent,
+                                        navigateBack = { navController.popBackStack() },
+                                        onLoad = { resource, resourceDescription ->
+                                            loading = true
+                                            loadingResource = resource
+                                            loadingDescription = resourceDescription
+                                        },
+                                        onResult = { loading = false }
+                                    )
+                                }
                             }
                         }
                     }
+                }
+                if (loading) {
+                    Loading(resource = loadingResource, resourceDescription = loadingDescription)
                 }
             }
         }

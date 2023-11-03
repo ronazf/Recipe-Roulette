@@ -83,7 +83,8 @@ fun InputAlertDialog(
                     .wrapContentWidth(Alignment.End),
                 onClick = {
                     onVerify(inputIngredient.trim())
-                }
+                },
+                enabled = inputIngredient.isNotEmpty()
             ) {
                 Text(
                     text = stringResource(id = R.string.verify_ingredient),

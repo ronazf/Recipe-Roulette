@@ -1,5 +1,6 @@
 package com.example.reciperoulette.repositories.recipeRepository
 
+import com.example.reciperoulette.activities.screens.libraryScreen.userActions.RecipeFilter
 import com.example.reciperoulette.api.ApiService
 import com.example.reciperoulette.api.request.Message
 import com.example.reciperoulette.api.request.Request
@@ -13,6 +14,7 @@ import com.example.reciperoulette.repositories.apiCallHandling.ApiPostReqFunc
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class RecipeRepositoryImpl @Inject constructor(
@@ -53,16 +55,35 @@ class RecipeRepositoryImpl @Inject constructor(
         return apiPostReq(apiPostReqFunc, request)
     }
 
+    override suspend fun getRecipeById(id: Long): Recipe {
+        return withContext(ioDispatcher) {
+            recipeDao.getRecipeById(id)
+        }
+    }
+
     override suspend fun upsertRecipe(recipe: Recipe) {
-        recipeDao.upsertRecipe(recipe)
+        withContext(ioDispatcher) {
+            recipeDao.upsertRecipe(recipe)
+        }
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
-        recipeDao.deleteRecipe(recipe)
+        withContext(ioDispatcher) {
+            recipeDao.deleteRecipe(recipe)
+        }
     }
 
-    override fun getRecipes(): Flow<List<Recipe>> {
-        return recipeDao.getRecipes()
-            .flowOn(ioDispatcher)
+    override suspend fun setRecipeFavourite(id: Long) {
+        withContext(ioDispatcher) {
+            recipeDao.setRecipeFavourite(id)
+        }
+    }
+
+    override fun getRecipes(filter: RecipeFilter, searchText: String): Flow<List<Recipe>> {
+        return recipeDao.getRecipes(
+            favourite = filter.favourite,
+            generated = filter.generated,
+            searchText = searchText
+        ).flowOn(ioDispatcher)
     }
 }
