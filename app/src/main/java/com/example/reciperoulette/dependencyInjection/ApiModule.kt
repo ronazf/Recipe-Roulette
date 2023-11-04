@@ -1,6 +1,6 @@
 package com.example.reciperoulette.dependencyInjection
 
-import com.example.reciperoulette.api.ApiService
+import com.example.reciperoulette.data.remote.service.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

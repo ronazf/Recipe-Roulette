@@ -2,8 +2,8 @@ package com.example.reciperoulette.dependencyInjection
 
 import android.content.Context
 import androidx.room.Room
-import com.example.reciperoulette.database.ingredients.IngredientDatabase
-import com.example.reciperoulette.database.recipes.RecipeDatabase
+import com.example.reciperoulette.data.local.ingredients.IngredientDatabase
+import com.example.reciperoulette.data.local.recipes.RecipeDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
