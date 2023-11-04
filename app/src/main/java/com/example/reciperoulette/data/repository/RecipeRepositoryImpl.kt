@@ -9,7 +9,7 @@ import com.example.reciperoulette.data.remote.api.response.Completion
 import com.example.reciperoulette.data.remote.service.ApiService
 import com.example.reciperoulette.dependencyInjection.IoDispatcher
 import com.example.reciperoulette.domain.repository.RecipeRepository
-import com.example.reciperoulette.presentation.activities.screens.libraryScreen.userActions.RecipeFilter
+import com.example.reciperoulette.presentation.screens.libraryScreen.userActions.RecipeFilter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

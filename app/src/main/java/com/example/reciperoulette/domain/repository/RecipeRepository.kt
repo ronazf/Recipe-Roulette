@@ -3,7 +3,7 @@ package com.example.reciperoulette.domain.repository
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.data.remote.api.response.Completion
-import com.example.reciperoulette.presentation.activities.screens.libraryScreen.userActions.RecipeFilter
+import com.example.reciperoulette.presentation.screens.libraryScreen.userActions.RecipeFilter
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {

@@ -11,7 +11,7 @@ import com.example.reciperoulette.data.remote.api.response.Completion
 import com.example.reciperoulette.data.remote.service.ApiService
 import com.example.reciperoulette.dependencyInjection.IoDispatcher
 import com.example.reciperoulette.domain.repository.IngredientsRepository
-import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
+import com.example.reciperoulette.presentation.screens.ingredientScreen.userActions.Filter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

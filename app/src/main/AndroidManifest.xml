@@ -17,7 +17,7 @@
         android:theme="@style/Theme.RecipeRoulette"
         tools:targetApi="31">
         <activity
-            android:name="com.example.reciperoulette.presentation.activities.mainActivity.MainActivity"
+            android:name="com.example.reciperoulette.presentation.mainActivity.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustNothing"
             android:theme="@style/Theme.RecipeRoulette">

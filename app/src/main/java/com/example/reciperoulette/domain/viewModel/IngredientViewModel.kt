@@ -8,9 +8,9 @@ import com.example.reciperoulette.data.local.ingredients.details.CategoryDetail
 import com.example.reciperoulette.data.local.ingredients.details.InvalidCategoryException
 import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 import com.example.reciperoulette.domain.useCase.ingredientsUC.IngredientsUseCases
-import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
-import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.IngredientEvent
-import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.IngredientState
+import com.example.reciperoulette.presentation.screens.ingredientScreen.userActions.Filter
+import com.example.reciperoulette.presentation.screens.ingredientScreen.userActions.IngredientEvent
+import com.example.reciperoulette.presentation.screens.ingredientScreen.userActions.IngredientState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

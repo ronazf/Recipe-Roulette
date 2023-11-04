@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.domain.useCase.recipesUC.RecipesUseCases
-import com.example.reciperoulette.presentation.activities.screens.recipeScreen.userActions.RecipeEvent
-import com.example.reciperoulette.presentation.activities.screens.recipeScreen.userActions.RecipeState
+import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent
+import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
