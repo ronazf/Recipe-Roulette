@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.reciperoulette.R
+import com.example.reciperoulette.data.local.ingredients.details.CategoryDetail
+import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 import com.example.reciperoulette.presentation.activities.GeneralConstants
 import com.example.reciperoulette.presentation.activities.components.GenericBtn
 import com.example.reciperoulette.presentation.activities.components.ItemRow
@@ -47,8 +49,6 @@ import com.example.reciperoulette.presentation.activities.screens.homeScreen.Hom
 import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
 import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.IngredientEvent
 import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.IngredientState
-import com.example.reciperoulette.data.local.ingredients.details.CategoryDetail
-import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

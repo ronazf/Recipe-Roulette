@@ -1,9 +1,6 @@
 package com.example.reciperoulette.domain.useCase.recipesUC.apiUC
 
 import android.util.Log
-import com.example.reciperoulette.data.remote.api.request.chatGPT.Role
-import com.example.reciperoulette.data.remote.api.response.Completion
-import com.example.reciperoulette.data.remote.api.response.InvalidResponseException
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.ingredients.entities.InvalidIngredientException
 import com.example.reciperoulette.data.local.recipes.RecipeStep
@@ -12,6 +9,9 @@ import com.example.reciperoulette.data.local.recipes.details.RecipeDetail
 import com.example.reciperoulette.data.local.recipes.details.RecipeStepDetail
 import com.example.reciperoulette.data.local.recipes.entities.InvalidRecipeException
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
+import com.example.reciperoulette.data.remote.api.request.chatGPT.Role
+import com.example.reciperoulette.data.remote.api.response.Completion
+import com.example.reciperoulette.data.remote.api.response.InvalidResponseException
 import com.example.reciperoulette.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

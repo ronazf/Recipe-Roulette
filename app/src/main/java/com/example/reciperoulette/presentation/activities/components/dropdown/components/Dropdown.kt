@@ -29,10 +29,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
-import com.example.reciperoulette.presentation.activities.GeneralConstants
-import com.example.reciperoulette.presentation.activities.components.dropdown.DropdownConstants
 import com.example.reciperoulette.data.local.ingredients.details.CategoryDetail
 import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
+import com.example.reciperoulette.presentation.activities.GeneralConstants
+import com.example.reciperoulette.presentation.activities.components.dropdown.DropdownConstants
 
 @Composable
 fun Dropdown(

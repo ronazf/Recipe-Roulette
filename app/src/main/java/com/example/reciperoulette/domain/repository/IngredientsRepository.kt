@@ -1,9 +1,9 @@
 package com.example.reciperoulette.domain.repository
 
-import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
-import com.example.reciperoulette.data.remote.api.response.Completion
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
+import com.example.reciperoulette.data.remote.api.response.Completion
+import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
 import kotlinx.coroutines.flow.Flow
 
 interface IngredientsRepository {

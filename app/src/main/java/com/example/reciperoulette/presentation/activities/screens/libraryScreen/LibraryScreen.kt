@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.reciperoulette.R
+import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.presentation.activities.GeneralConstants
 import com.example.reciperoulette.presentation.activities.components.SearchTab
 import com.example.reciperoulette.presentation.activities.components.Title
@@ -43,7 +44,6 @@ import com.example.reciperoulette.presentation.activities.components.filter.reci
 import com.example.reciperoulette.presentation.activities.screens.libraryScreen.userActions.LibraryEvent
 import com.example.reciperoulette.presentation.activities.screens.libraryScreen.userActions.LibraryState
 import com.example.reciperoulette.presentation.activities.screens.libraryScreen.userActions.RecipeFilter
-import com.example.reciperoulette.data.local.recipes.entities.Recipe
 
 @Composable
 fun LibraryScreen(

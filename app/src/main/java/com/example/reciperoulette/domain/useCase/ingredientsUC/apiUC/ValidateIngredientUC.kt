@@ -1,13 +1,13 @@
 package com.example.reciperoulette.domain.useCase.ingredientsUC.apiUC
 
 import android.util.Log
-import com.example.reciperoulette.data.remote.api.request.chatGPT.Role
-import com.example.reciperoulette.data.remote.api.response.Completion
-import com.example.reciperoulette.data.remote.api.response.InvalidResponseException
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.ingredients.details.IngredientDetail
 import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 import com.example.reciperoulette.data.local.ingredients.entities.InvalidIngredientException
+import com.example.reciperoulette.data.remote.api.request.chatGPT.Role
+import com.example.reciperoulette.data.remote.api.response.Completion
+import com.example.reciperoulette.data.remote.api.response.InvalidResponseException
 import com.example.reciperoulette.domain.repository.IngredientsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

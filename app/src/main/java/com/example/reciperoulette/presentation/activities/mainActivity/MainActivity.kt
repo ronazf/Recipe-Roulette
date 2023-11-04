@@ -27,6 +27,9 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.reciperoulette.R
+import com.example.reciperoulette.domain.viewModel.IngredientViewModel
+import com.example.reciperoulette.domain.viewModel.LibraryViewModel
+import com.example.reciperoulette.domain.viewModel.RecipeViewModel
 import com.example.reciperoulette.presentation.activities.components.Loading
 import com.example.reciperoulette.presentation.activities.navigation.NavBar
 import com.example.reciperoulette.presentation.activities.screenRoutes.Screen
@@ -35,9 +38,6 @@ import com.example.reciperoulette.presentation.activities.screens.ingredientScre
 import com.example.reciperoulette.presentation.activities.screens.libraryScreen.LibraryScreen
 import com.example.reciperoulette.presentation.activities.screens.recipeScreen.RecipeScreen
 import com.example.reciperoulette.presentation.ui.theme.RecipeRuletteTheme
-import com.example.reciperoulette.domain.viewModel.IngredientViewModel
-import com.example.reciperoulette.domain.viewModel.LibraryViewModel
-import com.example.reciperoulette.domain.viewModel.RecipeViewModel
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint

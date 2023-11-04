@@ -1,12 +1,12 @@
 package com.example.reciperoulette.dependencyInjection
 
-import com.example.reciperoulette.data.remote.service.ApiService
 import com.example.reciperoulette.data.local.ingredients.dao.IngredientDao
 import com.example.reciperoulette.data.local.recipes.dao.RecipeDao
-import com.example.reciperoulette.domain.repository.IngredientsRepository
+import com.example.reciperoulette.data.remote.service.ApiService
 import com.example.reciperoulette.data.repository.IngredientsRepositoryImpl
-import com.example.reciperoulette.domain.repository.RecipeRepository
 import com.example.reciperoulette.data.repository.RecipeRepositoryImpl
+import com.example.reciperoulette.domain.repository.IngredientsRepository
+import com.example.reciperoulette.domain.repository.RecipeRepository
 import com.example.reciperoulette.domain.useCase.ingredientsUC.IngredientsUseCases
 import com.example.reciperoulette.domain.useCase.ingredientsUC.apiUC.ValidateIngredientUC
 import com.example.reciperoulette.domain.useCase.ingredientsUC.databaseUC.deleteIngredient.DeleteIngredientUC

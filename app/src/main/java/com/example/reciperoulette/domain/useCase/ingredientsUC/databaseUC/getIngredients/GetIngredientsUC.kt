@@ -1,8 +1,8 @@
 package com.example.reciperoulette.domain.useCase.ingredientsUC.databaseUC.getIngredients
 
-import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
 import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 import com.example.reciperoulette.domain.repository.IngredientsRepository
+import com.example.reciperoulette.presentation.activities.screens.ingredientScreen.userActions.Filter
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

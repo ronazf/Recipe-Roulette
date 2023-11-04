@@ -39,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.reciperoulette.R
+import com.example.reciperoulette.data.local.recipes.RecipeStep
+import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.presentation.activities.GeneralConstants
 import com.example.reciperoulette.presentation.activities.components.GenericBtn
 import com.example.reciperoulette.presentation.activities.components.ShowWarning
@@ -50,8 +52,6 @@ import com.example.reciperoulette.presentation.activities.components.image.compo
 import com.example.reciperoulette.presentation.activities.screens.homeScreen.HomeConstants
 import com.example.reciperoulette.presentation.activities.screens.recipeScreen.userActions.RecipeEvent
 import com.example.reciperoulette.presentation.activities.screens.recipeScreen.userActions.RecipeState
-import com.example.reciperoulette.data.local.recipes.RecipeStep
-import com.example.reciperoulette.data.local.recipes.entities.Recipe
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
