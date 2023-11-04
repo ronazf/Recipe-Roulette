@@ -39,7 +39,7 @@ fun GifImage(
                     block = { size(Size.ORIGINAL) }
                 )
                 .build(),
-            imageLoader = imageLoader,
+            imageLoader = imageLoader
         ),
         contentDescription = resourceDescription
     )

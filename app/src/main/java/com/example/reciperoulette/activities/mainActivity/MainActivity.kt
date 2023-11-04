@@ -34,8 +34,8 @@ import com.example.reciperoulette.activities.screens.homeScreen.HomeScreen
 import com.example.reciperoulette.activities.screens.ingredientScreen.IngredientSelectionScreen
 import com.example.reciperoulette.activities.screens.libraryScreen.LibraryScreen
 import com.example.reciperoulette.activities.screens.recipeScreen.RecipeScreen
-import com.example.reciperoulette.viewModels.ingredientViewModel.IngredientViewModel
 import com.example.reciperoulette.ui.theme.RecipeRuletteTheme
+import com.example.reciperoulette.viewModels.ingredientViewModel.IngredientViewModel
 import com.example.reciperoulette.viewModels.libraryViewModel.LibraryViewModel
 import com.example.reciperoulette.viewModels.recipeViewModel.RecipeViewModel
 import dagger.hilt.EntryPoint
@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
                                             loadingResource = resource
                                             loadingDescription = resourceDescription
                                         },
-                                        onResult = { loading = false },
+                                        onResult = { loading = false }
                                     )
                                 }
                                 composable(

@@ -291,7 +291,6 @@ fun AddSearchFilter(
             onIngredientEvent = onIngredientEvent
         )
     }
-
 }
 
 @Composable
@@ -372,6 +371,6 @@ fun DefaultPreview() {
         state = previewState,
         onIngredientEvent = {},
         onLoad = { _, _ -> },
-        onResult = {},
+        onResult = {}
     )
 }

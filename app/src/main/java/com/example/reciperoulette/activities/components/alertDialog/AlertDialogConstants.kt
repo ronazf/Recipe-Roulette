@@ -1,7 +1,6 @@
 package com.example.reciperoulette.activities.components.alertDialog
 
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 class AlertDialogConstants {
     companion object {

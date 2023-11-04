@@ -1,4 +1,4 @@
-package com.example.reciperoulette.use_case.ingredientsUC.apiUC
+package com.example.reciperoulette.useCase.ingredientsUC.apiUC
 
 import android.util.Log
 import com.example.reciperoulette.api.request.chatGPT.Role
@@ -51,11 +51,11 @@ class ValidateIngredientUC @Inject constructor(
 
     @Throws(InvalidIngredientException::class, InvalidResponseException::class)
     private fun processResult(res: Completion): Ingredient {
-
-        val response = getJsonObj(res.choices
-            .last {
-                it.message.role == Role.ASSISTANT.type
-            }.message.content
+        val response = getJsonObj(
+            res.choices
+                .last {
+                    it.message.role == Role.ASSISTANT.type
+                }.message.content
         )
 
         validIngredientCheck(response)

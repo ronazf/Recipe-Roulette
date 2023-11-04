@@ -16,6 +16,7 @@ class Converters {
         private const val ARRAY_SUFFIX = "]"
         private const val ARRAY_STRING_CHAR = '"'
     }
+
     @TypeConverter
     fun stringToTime(value: String?): LocalDateTime? {
         return value?.let { LocalDateTime.parse(it) }
@@ -33,7 +34,6 @@ class Converters {
             .map {
                 it.trim(ARRAY_STRING_CHAR).trim()
             }
-
     }
 
     @TypeConverter
@@ -57,9 +57,11 @@ class Converters {
                     RecipeStep(
                         instructions = obj.getString(RecipeStepDetail.INSTRUCTIONS.strName)
                             .replace(FAHRENHEIT_STR, FAHRENHEIT_CHAR),
-                        minutes = if (obj.has(RecipeStepDetail.MINUTES.strName)) obj.getInt(
-                            RecipeStepDetail.MINUTES.strName
-                        ) else null
+                        minutes = if (obj.has(RecipeStepDetail.MINUTES.strName)) {
+                            obj.getInt(
+                                RecipeStepDetail.MINUTES.strName
+                            )
+                        } else { null }
                     )
                 } catch (e: Exception) {
                     RecipeStep(
@@ -72,7 +74,6 @@ class Converters {
                     )
                 }
             }
-
     }
 
     @TypeConverter

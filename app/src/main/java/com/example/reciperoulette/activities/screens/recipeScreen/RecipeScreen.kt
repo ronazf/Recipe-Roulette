@@ -412,6 +412,6 @@ fun DefaultPreview() {
         onRecipeEvent = {},
         navigateBack = {},
         onLoad = { _, _ -> },
-        onResult = {},
+        onResult = {}
     )
 }

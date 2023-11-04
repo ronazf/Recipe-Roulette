@@ -1,7 +1,6 @@
 package com.example.reciperoulette.viewModels.ingredientViewModel
 
 import android.database.sqlite.SQLiteConstraintException
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reciperoulette.activities.screens.ingredientScreen.userActions.Filter
@@ -11,7 +10,7 @@ import com.example.reciperoulette.api.response.Resource
 import com.example.reciperoulette.database.ingredients.details.CategoryDetail
 import com.example.reciperoulette.database.ingredients.details.InvalidCategoryException
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
-import com.example.reciperoulette.use_case.ingredientsUC.IngredientsUseCases
+import com.example.reciperoulette.useCase.ingredientsUC.IngredientsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -143,7 +142,7 @@ class IngredientViewModel @Inject constructor(
                 ingredientUC.upsertIngredient(ingredient)
                 _state.update { ingredientState ->
                     ingredientState.copy(
-                        success = INGREDIENT_ADDED,
+                        success = INGREDIENT_ADDED
                     )
                 }
             } catch (e: SQLiteConstraintException) {
@@ -165,8 +164,8 @@ class IngredientViewModel @Inject constructor(
     private fun verifyIngredient() {
         viewModelScope.launch {
             if (_state.value.ingredients
-                    .map { it.ingredientName.lowercase() }
-                    .contains(_state.value.ingredientName.lowercase())
+                .map { it.ingredientName.lowercase() }
+                .contains(_state.value.ingredientName.lowercase())
             ) {
                 _state.update { ingredientState ->
                     ingredientState.copy(
@@ -200,7 +199,7 @@ class IngredientViewModel @Inject constructor(
                     is Resource.Success -> {
                         _state.update { ingredientState ->
                             ingredientState.copy(
-                                verifyingIngredient = false,
+                                verifyingIngredient = false
                             )
                         }
                         it.data?.let { ingredient ->

@@ -1,4 +1,4 @@
-package com.example.reciperoulette.use_case.recipesUC.databaseUC.get_recipe
+package com.example.reciperoulette.useCase.recipesUC.databaseUC.getRecipe
 
 import com.example.reciperoulette.activities.screens.libraryScreen.userActions.RecipeFilter
 import com.example.reciperoulette.database.recipes.entities.Recipe

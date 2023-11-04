@@ -1,4 +1,4 @@
-package com.example.reciperoulette.use_case.recipesUC.apiUC
+package com.example.reciperoulette.useCase.recipesUC.apiUC
 
 import android.util.Log
 import com.example.reciperoulette.api.request.chatGPT.Role
@@ -53,10 +53,11 @@ class GetRecipeUC @Inject constructor(
 
     @Throws(InvalidRecipeException::class, InvalidResponseException::class)
     private fun processResult(res: Completion): Recipe {
-        val response = getJsonObj(res.choices
-            .last {
-                it.message.role == Role.ASSISTANT.type
-            }.message.content
+        val response = getJsonObj(
+            res.choices
+                .last {
+                    it.message.role == Role.ASSISTANT.type
+                }.message.content
         )
 
         return mapToRecipe(response)
@@ -93,8 +94,8 @@ class GetRecipeUC @Inject constructor(
             val obj = array.getJSONObject(i)
             ingredients.add(
                 obj.getString(IngredientNameDetail.AMOUNT.strName) +
-                " " +
-                obj.getString(IngredientNameDetail.NAME.strName)
+                    " " +
+                    obj.getString(IngredientNameDetail.NAME.strName)
             )
         }
         return ingredients

@@ -1,6 +1,5 @@
 package com.example.reciperoulette.activities.components.dropdown.components
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,8 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
 import com.example.reciperoulette.activities.GeneralConstants
-import com.example.reciperoulette.activities.components.alertDialog.components.CancelableAlertDialog
 import com.example.reciperoulette.activities.components.ShowWarning
+import com.example.reciperoulette.activities.components.alertDialog.components.CancelableAlertDialog
 
 @Composable
 fun DropDownItem(
@@ -93,11 +92,10 @@ fun DropDownItem(
                             .padding(start = GeneralConstants.IMAGE_TEXT_PADDING)
                             .clickable { showAlert = true },
                         painter = painterResource(id = R.drawable.remove),
-                        contentDescription = stringResource(id = R.string.remove),
+                        contentDescription = stringResource(id = R.string.remove)
                     )
                 }
             )
-
         }
     }
 }

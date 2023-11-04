@@ -8,7 +8,7 @@ import com.example.reciperoulette.activities.screens.recipeScreen.userActions.Re
 import com.example.reciperoulette.activities.screens.recipeScreen.userActions.RecipeState
 import com.example.reciperoulette.api.response.Resource
 import com.example.reciperoulette.database.recipes.entities.Recipe
-import com.example.reciperoulette.use_case.recipesUC.RecipesUseCases
+import com.example.reciperoulette.useCase.recipesUC.RecipesUseCases
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

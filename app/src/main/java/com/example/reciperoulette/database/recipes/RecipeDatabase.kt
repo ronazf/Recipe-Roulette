@@ -13,6 +13,6 @@ import com.example.reciperoulette.database.typeConverters.Converters
     exportSchema = true
 )
 @TypeConverters(Converters::class)
-abstract class RecipeDatabase: RoomDatabase() {
+abstract class RecipeDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
 }

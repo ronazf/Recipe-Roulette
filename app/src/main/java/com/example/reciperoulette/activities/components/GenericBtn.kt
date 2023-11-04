@@ -46,7 +46,7 @@ fun GenericBtn(
         contentPadding = contentPadding,
         enabled = enabled
     ) {
-        Row (
+        Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically

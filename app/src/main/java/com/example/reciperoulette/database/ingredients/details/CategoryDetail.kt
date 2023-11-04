@@ -15,4 +15,4 @@ enum class CategoryDetail(val strName: String, /* unique */ val id: Int) {
     CANNED_JARRED("Canned and Jarred", 11)
 }
 
-class InvalidCategoryException(message: String): Exception(message)
+class InvalidCategoryException(message: String) : Exception(message)

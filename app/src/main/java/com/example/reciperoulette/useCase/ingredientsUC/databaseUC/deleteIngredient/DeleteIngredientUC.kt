@@ -1,4 +1,4 @@
-package com.example.reciperoulette.use_case.ingredientsUC.databaseUC.delete_ingredient
+package com.example.reciperoulette.useCase.ingredientsUC.databaseUC.deleteIngredient
 
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 import com.example.reciperoulette.repositories.ingredientsRepository.IngredientsRepository

@@ -39,4 +39,4 @@ data class Ingredient(
     val isDairyFree: Boolean
 )
 
-class InvalidIngredientException(message: String): Exception(message)
+class InvalidIngredientException(message: String) : Exception(message)

@@ -30,7 +30,7 @@ fun RecipeFilterTab(
 ) {
     val scrollState = rememberScrollState()
 
-    Row (
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .horizontalScroll(scrollState),

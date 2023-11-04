@@ -11,4 +11,4 @@ data class Completion(
     @SerializedName("usage") val usage: Usage
 )
 
-class InvalidResponseException(message: String): Exception(message)
+class InvalidResponseException(message: String) : Exception(message)

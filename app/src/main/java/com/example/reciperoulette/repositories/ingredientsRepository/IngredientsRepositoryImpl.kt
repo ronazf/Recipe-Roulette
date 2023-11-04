@@ -6,9 +6,9 @@ import com.example.reciperoulette.api.request.Message
 import com.example.reciperoulette.api.request.Request
 import com.example.reciperoulette.api.response.Completion
 import com.example.reciperoulette.api.response.Resource
+import com.example.reciperoulette.database.ingredients.dao.IngredientDao
 import com.example.reciperoulette.database.ingredients.details.CategoryDetail
 import com.example.reciperoulette.database.ingredients.details.IngredientDetail
-import com.example.reciperoulette.database.ingredients.dao.IngredientDao
 import com.example.reciperoulette.database.ingredients.entities.Ingredient
 import com.example.reciperoulette.dependencyInjection.IoDispatcher
 import com.example.reciperoulette.repositories.apiCallHandling.ApiHandleRepository
@@ -29,27 +29,27 @@ class IngredientsRepositoryImpl @Inject constructor(
     private val answer = "answer the following question "
     private val trueFalse = "with true or false only. "
     private val trueFalseNA = "with true or false or N/A (only answer with N/A if you answered" +
-            "the previous question as false). "
+        "the previous question as false). "
     private val keyVal = "For key named (name in quotes) "
     private val verifyIngredientReq = "Your task is to return a list of key value pairs. " +
-            keyVal +  "\"${IngredientDetail.NAME.strName}\" " + answer +
-            ". What is the name of the ingredient inputted?" +
-            keyVal + "\"${IngredientDetail.IS_INGREDIENT.strName}\" " + answer + trueFalse +
-            "Is the following item considered to be an edible cooking/baking ingredient? " +
-            keyVal + "\"${IngredientDetail.IS_VEGETARIAN.strName}\" " + answer + trueFalseNA +
-            "Is it vegetarian?" +
-            keyVal + "\"${IngredientDetail.IS_PESCATARIAN.strName}\" " + answer + trueFalseNA +
-            "Is it pescatarian?" +
-            keyVal + "\"${IngredientDetail.IS_NUT_FREE.strName}\" " + answer + trueFalseNA +
-            "Is it nut free?" +
-            keyVal + "\"${IngredientDetail.IS_DAIRY_FREE.strName}\" " + answer + trueFalseNA +
-            "Is it dairy free?" +
-            "Additionally, if it is an ingredient, under what category is it labeled?" +
-            keyVal + "\"${IngredientDetail.CATEGORY.strName}\" " +
-            "choose from the following categories (the value you return for this key must " +
-            "only consist of the id number corresponding " +
-            "to the category you've chosen (i.e. category:1)): " + getCategories() + ".\n" +
-            "Please only return the key value pairs in JSON format."
+        keyVal + "\"${IngredientDetail.NAME.strName}\" " + answer +
+        ". What is the name of the ingredient inputted?" +
+        keyVal + "\"${IngredientDetail.IS_INGREDIENT.strName}\" " + answer + trueFalse +
+        "Is the following item considered to be an edible cooking/baking ingredient? " +
+        keyVal + "\"${IngredientDetail.IS_VEGETARIAN.strName}\" " + answer + trueFalseNA +
+        "Is it vegetarian?" +
+        keyVal + "\"${IngredientDetail.IS_PESCATARIAN.strName}\" " + answer + trueFalseNA +
+        "Is it pescatarian?" +
+        keyVal + "\"${IngredientDetail.IS_NUT_FREE.strName}\" " + answer + trueFalseNA +
+        "Is it nut free?" +
+        keyVal + "\"${IngredientDetail.IS_DAIRY_FREE.strName}\" " + answer + trueFalseNA +
+        "Is it dairy free?" +
+        "Additionally, if it is an ingredient, under what category is it labeled?" +
+        keyVal + "\"${IngredientDetail.CATEGORY.strName}\" " +
+        "choose from the following categories (the value you return for this key must " +
+        "only consist of the id number corresponding " +
+        "to the category you've chosen (i.e. category:1)): " + getCategories() + ".\n" +
+        "Please only return the key value pairs in JSON format."
 
     override fun getIngredients(filter: Filter, searchText: String): Flow<List<Ingredient>> {
         return ingredientDao.getIngredients(
@@ -74,7 +74,8 @@ class IngredientsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun validateIngredient(ingredient: String): Resource<Completion> {
-        val reqContent = "$verifyIngredientReq\nitem name is (either ingredient or not): $ingredient"
+        val reqContent =
+            "$verifyIngredientReq\nitem name is (either ingredient or not): $ingredient"
         val request = Request(messages = arrayOf(Message(content = reqContent)))
         val apiPostReqFunc: ApiPostReqFunc<Completion> = { req -> ingredientApi.getData(req) }
         return apiPostReq(apiPostReqFunc, request)

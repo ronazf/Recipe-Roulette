@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface IngredientDao {
 
-    @Query("SELECT ingredients.* " +
+    @Query(
+        "SELECT ingredients.* " +
             "FROM ingredients " +
             "JOIN categories ON ingredients.category_id = categories.category_id " +
             "WHERE (NOT :isVegetarian OR ingredients.is_vegetarian = :isVegetarian) AND " +
@@ -21,7 +22,8 @@ interface IngredientDao {
             "ORDER BY " +
             "   CASE" +
             "       WHEN LENGTH(:searchText) = 0 THEN ingredients.category_id END ASC, " +
-            "ingredients.ingredient_name ASC")
+            "ingredients.ingredient_name ASC"
+    )
     fun getIngredients(
         isVegetarian: Boolean,
         isPescatarian: Boolean,

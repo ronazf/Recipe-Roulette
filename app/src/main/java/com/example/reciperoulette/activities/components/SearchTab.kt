@@ -65,7 +65,7 @@ fun SearchTab(
                     Icon(
                         modifier = Modifier
                             .padding(
-                                start = GeneralConstants.IMAGE_TEXT_PADDING,
+                                start = GeneralConstants.IMAGE_TEXT_PADDING
                             )
                             .clickable {
                                 onClick()

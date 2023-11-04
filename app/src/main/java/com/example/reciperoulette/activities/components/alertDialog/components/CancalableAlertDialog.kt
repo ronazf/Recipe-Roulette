@@ -15,8 +15,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.reciperoulette.R
-import com.example.reciperoulette.activities.components.alertDialog.AlertDialogConstants
 import com.example.reciperoulette.activities.GeneralConstants
+import com.example.reciperoulette.activities.components.alertDialog.AlertDialogConstants
 
 @Composable
 fun CancelableAlertDialog(

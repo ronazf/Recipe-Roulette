@@ -73,13 +73,15 @@ fun CustomTextField(
                                 )
                         ) {
                             innerTextField()
-                            if (text.isEmpty()) Text(
-                                text = placeHolder,
-                                style = LocalTextStyle.current.copy(
-                                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
-                                    fontFamily = GeneralConstants.FONT_FAMILY
+                            if (text.isEmpty()) {
+                                Text(
+                                    text = placeHolder,
+                                    style = LocalTextStyle.current.copy(
+                                        fontSize = GeneralConstants.TEXT_FONT_SIZE,
+                                        fontFamily = GeneralConstants.FONT_FAMILY
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                     trailingIcon?.let {

@@ -7,19 +7,19 @@ import com.example.reciperoulette.repositories.ingredientsRepository.Ingredients
 import com.example.reciperoulette.repositories.ingredientsRepository.IngredientsRepositoryImpl
 import com.example.reciperoulette.repositories.recipeRepository.RecipeRepository
 import com.example.reciperoulette.repositories.recipeRepository.RecipeRepositoryImpl
-import com.example.reciperoulette.use_case.ingredientsUC.IngredientsUseCases
-import com.example.reciperoulette.use_case.ingredientsUC.apiUC.ValidateIngredientUC
-import com.example.reciperoulette.use_case.ingredientsUC.databaseUC.delete_ingredient.DeleteIngredientUC
-import com.example.reciperoulette.use_case.ingredientsUC.databaseUC.get_ingredients.GetIngredientsUC
-import com.example.reciperoulette.use_case.ingredientsUC.databaseUC.upsert_ingredient.UpsertIngredientUC
-import com.example.reciperoulette.use_case.recipesUC.RecipeLibraryUseCases
-import com.example.reciperoulette.use_case.recipesUC.RecipesUseCases
-import com.example.reciperoulette.use_case.recipesUC.apiUC.GetRecipeUC
-import com.example.reciperoulette.use_case.recipesUC.databaseUC.delete_recipe.DeleteRecipeUC
-import com.example.reciperoulette.use_case.recipesUC.databaseUC.favourite_recipe.SetRecipeFavouriteUC
-import com.example.reciperoulette.use_case.recipesUC.databaseUC.get_recipe.GetRecipeByIdUC
-import com.example.reciperoulette.use_case.recipesUC.databaseUC.get_recipe.GetRecipesUC
-import com.example.reciperoulette.use_case.recipesUC.databaseUC.upsert_recipe.UpsertRecipeUC
+import com.example.reciperoulette.useCase.ingredientsUC.IngredientsUseCases
+import com.example.reciperoulette.useCase.ingredientsUC.apiUC.ValidateIngredientUC
+import com.example.reciperoulette.useCase.ingredientsUC.databaseUC.deleteIngredient.DeleteIngredientUC
+import com.example.reciperoulette.useCase.ingredientsUC.databaseUC.getIngredients.GetIngredientsUC
+import com.example.reciperoulette.useCase.ingredientsUC.databaseUC.upsertIngredient.UpsertIngredientUC
+import com.example.reciperoulette.useCase.recipesUC.RecipeLibraryUseCases
+import com.example.reciperoulette.useCase.recipesUC.RecipesUseCases
+import com.example.reciperoulette.useCase.recipesUC.apiUC.GetRecipeUC
+import com.example.reciperoulette.useCase.recipesUC.databaseUC.deleteRecipe.DeleteRecipeUC
+import com.example.reciperoulette.useCase.recipesUC.databaseUC.favouriteRecipe.SetRecipeFavouriteUC
+import com.example.reciperoulette.useCase.recipesUC.databaseUC.getRecipe.GetRecipeByIdUC
+import com.example.reciperoulette.useCase.recipesUC.databaseUC.getRecipe.GetRecipesUC
+import com.example.reciperoulette.useCase.recipesUC.databaseUC.upsertRecipe.UpsertRecipeUC
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -56,7 +56,7 @@ object AppModule {
     fun provideIngredientsUseCases(
         ingredientsRepository: IngredientsRepository
     ): IngredientsUseCases {
-        return IngredientsUseCases (
+        return IngredientsUseCases(
             validateIngredient = ValidateIngredientUC(ingredientsRepository),
             deleteIngredient = DeleteIngredientUC(ingredientsRepository),
             getIngredients = GetIngredientsUC(ingredientsRepository),
@@ -69,7 +69,7 @@ object AppModule {
     fun provideRecipesUseCases(
         recipesRepository: RecipeRepository
     ): RecipesUseCases {
-        return RecipesUseCases (
+        return RecipesUseCases(
             getRecipe = GetRecipeUC(recipesRepository),
             upsertRecipe = UpsertRecipeUC(recipesRepository),
             getRecipeById = GetRecipeByIdUC(recipesRepository)
@@ -81,7 +81,7 @@ object AppModule {
     fun provideLibraryUseCases(
         recipesRepository: RecipeRepository
     ): RecipeLibraryUseCases {
-        return RecipeLibraryUseCases (
+        return RecipeLibraryUseCases(
             getRecipes = GetRecipesUC(recipesRepository),
             getRecipe = GetRecipeUC(recipesRepository),
             deleteRecipe = DeleteRecipeUC(recipesRepository),

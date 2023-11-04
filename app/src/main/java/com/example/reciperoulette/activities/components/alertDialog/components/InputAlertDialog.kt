@@ -1,6 +1,5 @@
 package com.example.reciperoulette.activities.components.alertDialog.components
 
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,9 +23,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
-import com.example.reciperoulette.activities.components.alertDialog.AlertDialogConstants
 import com.example.reciperoulette.activities.GeneralConstants
 import com.example.reciperoulette.activities.components.CustomTextField
+import com.example.reciperoulette.activities.components.alertDialog.AlertDialogConstants
 
 @Composable
 fun InputAlertDialog(

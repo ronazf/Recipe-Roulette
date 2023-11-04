@@ -6,7 +6,7 @@ import com.example.reciperoulette.activities.screens.libraryScreen.userActions.L
 import com.example.reciperoulette.activities.screens.libraryScreen.userActions.LibraryState
 import com.example.reciperoulette.activities.screens.libraryScreen.userActions.RecipeFilter
 import com.example.reciperoulette.database.recipes.entities.Recipe
-import com.example.reciperoulette.use_case.recipesUC.RecipeLibraryUseCases
+import com.example.reciperoulette.useCase.recipesUC.RecipeLibraryUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,7 +52,7 @@ class LibraryViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SAFE_WAIT), LibraryState())
 
     fun onLibraryEvent(event: LibraryEvent) {
-        when(event) {
+        when (event) {
             is LibraryEvent.DeleteRecipe -> {
                 deleteRecipe(event.recipe)
             }

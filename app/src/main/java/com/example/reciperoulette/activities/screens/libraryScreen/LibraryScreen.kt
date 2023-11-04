@@ -285,8 +285,9 @@ fun ConfirmRemoveRecipe(
         iconImage = painterResource(id = R.drawable.library_remove),
         iconDescription = stringResource(id = R.string.library_remove),
         title = stringResource(id = R.string.remove_recipe),
-        questionText = stringResource(id = R.string.confirm_remove_recipe)
-                + "\n\n" + recipeName
+        questionText = stringResource(
+            id = R.string.confirm_remove_recipe
+        ) + "\n\n" + recipeName
     )
 }
 
@@ -296,9 +297,8 @@ fun DefaultPreview() {
     val recipes = listOf(
         Recipe(
             recipeName = "recipe1",
-            ingredients = listOf(
-                "Carrot", "Beef Broth", "Potatoes"
-            ),
+            ingredients =
+            listOf("Carrot", "Beef Broth", "Potatoes"),
             steps = listOf()
         ),
         Recipe(

@@ -1,4 +1,4 @@
-package com.example.reciperoulette.use_case.recipesUC.databaseUC.upsert_recipe
+package com.example.reciperoulette.useCase.recipesUC.databaseUC.upsertRecipe
 
 import com.example.reciperoulette.database.recipes.entities.Recipe
 import com.example.reciperoulette.repositories.recipeRepository.RecipeRepository

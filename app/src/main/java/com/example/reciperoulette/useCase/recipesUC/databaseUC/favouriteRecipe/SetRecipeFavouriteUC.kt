@@ -1,4 +1,4 @@
-package com.example.reciperoulette.use_case.recipesUC.databaseUC.favourite_recipe
+package com.example.reciperoulette.useCase.recipesUC.databaseUC.favouriteRecipe
 
 import com.example.reciperoulette.repositories.recipeRepository.RecipeRepository
 import javax.inject.Inject

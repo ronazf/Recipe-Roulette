@@ -70,7 +70,7 @@ fun Dropdown(
                 .background(color)
                 .clickable {
                     isExpanded = !isExpanded
-                },
+                }
         ) {
             Text(
                 modifier = Modifier
