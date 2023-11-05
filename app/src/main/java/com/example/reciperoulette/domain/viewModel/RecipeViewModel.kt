@@ -66,6 +66,32 @@ class RecipeViewModel @AssistedInject constructor(
 
     fun onRecipeEvent(event: RecipeEvent) {
         when (event) {
+            is RecipeEvent.DragRecipe -> {
+                if (event.beginIndex < 0 ||
+                    event.endIndex < 0 ||
+                    event.beginIndex >= (_state.value.recipe?.steps?.size ?: 0) ||
+                    event.endIndex >= (_state.value.recipe?.steps?.size ?: 0) ||
+                    event.endIndex == event.beginIndex
+                ) {
+                    return
+                }
+
+                val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
+                val removedStep = updatedRecipe?.removeAt(event.beginIndex)
+                removedStep?.let {
+                    updatedRecipe.add(event.endIndex, it)
+                }
+                _state.update {
+                    it.copy(
+                        recipe = updatedRecipe?.toList()?.let { steps ->
+                            _state.value.recipe?.copy(
+                                steps = steps
+                            )
+                        }
+                    )
+                }
+            }
+
             is RecipeEvent.AddRecipeStep -> {
                 val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
                 updatedRecipe?.add(

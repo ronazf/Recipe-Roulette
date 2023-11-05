@@ -1,22 +1,26 @@
 package com.example.reciperoulette.presentation.screens.recipeScreen
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -48,9 +57,11 @@ import com.example.reciperoulette.presentation.components.Title
 import com.example.reciperoulette.presentation.components.alertDialog.components.ErrorAlertDialog
 import com.example.reciperoulette.presentation.components.alertDialog.components.InfoAlertDialog
 import com.example.reciperoulette.presentation.components.alertDialog.components.SuccessAlertDialog
+import com.example.reciperoulette.presentation.components.dragDropList.DragDropList
 import com.example.reciperoulette.presentation.components.image.components.BackgroundImage
 import com.example.reciperoulette.presentation.screens.homeScreen.HomeConstants
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent
+import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent.DragRecipe
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeState
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -243,7 +254,8 @@ fun RecipeDetails(
             )
         }
         RecipeSteps(
-            steps = recipe.steps
+            steps = recipe.steps,
+            onRecipeEvent = onRecipeEvent
         )
     }
 }
@@ -313,76 +325,151 @@ fun RecipeInfo(
 
 @Composable
 fun RecipeSteps(
-    steps: List<RecipeStep>
+    steps: List<RecipeStep>,
+    onRecipeEvent: (RecipeEvent) -> Unit
 ) {
-    LazyColumn(
+    DragDropList(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING),
-        contentPadding = PaddingValues(vertical = RecipeConstants.IMAGE_TEXT_PADDING)
-    ) {
-        itemsIndexed(steps) { index, step ->
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(RecipeConstants.RECIPE_CORNER_ROUNDING),
-                colors = CardDefaults.cardColors(
-                    containerColor = colorResource(id = R.color.light_grey)
+        contentPadding = PaddingValues(vertical = RecipeConstants.IMAGE_TEXT_PADDING),
+        items = steps,
+        onDrop = { begin, end ->
+            onRecipeEvent(DragRecipe(begin, end))
+        },
+        listContent = {
+            item { AddRecipeStep() }
+
+            item { Spacer(modifier = Modifier.padding(vertical = RecipeConstants.RECIPE_LIST_SPACER)) }
+        }
+    ) { index, item, dragging ->
+        val elevation by animateDpAsState(
+            targetValue = if (dragging) {
+                RecipeConstants.RECIPE_CARD_DRAGGING_ELEVATION
+            } else {
+                RecipeConstants.RECIPE_CARD_ELEVATION
+            },
+            label = ""
+        )
+        val shadowElevation by animateDpAsState(
+            targetValue = if (dragging) {
+                RecipeConstants.RECIPE_SHADOW_DRAGGING_ELEVATION
+            } else {
+                RecipeConstants.RECIPE_SHADOW_ELEVATION
+            },
+            label = ""
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = shadowElevation,
+                    shape = RoundedCornerShape(RecipeConstants.RECIPE_CORNER_ROUNDING)
                 ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = RecipeConstants.RECIPE_CARD_ELEVATION
-                )
+            shape = RoundedCornerShape(RecipeConstants.RECIPE_CORNER_ROUNDING),
+            colors = CardDefaults.cardColors(
+                containerColor = colorResource(id = R.color.light_grey)
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = elevation
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(
+                        top = GeneralConstants.IMAGE_TEXT_PADDING,
+                        start = GeneralConstants.IMAGE_TEXT_PADDING,
+                        end = GeneralConstants.IMAGE_TEXT_PADDING,
+                        bottom = GeneralConstants.IMAGE_TEXT_PADDING
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(
-                            top = GeneralConstants.IMAGE_TEXT_PADDING,
-                            start = GeneralConstants.IMAGE_TEXT_PADDING,
-                            end = GeneralConstants.IMAGE_TEXT_PADDING,
-                            bottom = GeneralConstants.IMAGE_TEXT_PADDING
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.TopStart),
-                        text = "Step ${index + 1}",
-                        fontSize = RecipeConstants.STEP_FONT_SIZE,
-                        textAlign = TextAlign.Start,
-                        fontFamily = GeneralConstants.FONT_FAMILY
-                    )
-                    step.minutes?.let {
-                        Text(
-                            modifier = Modifier
-                                .wrapContentSize(Alignment.TopEnd)
-                                .fillMaxWidth(),
-                            text = "${step.minutes} Minutes",
-                            fontSize = RecipeConstants.MINUTES_FONT_SIZE,
-                            textAlign = TextAlign.End,
-                            fontFamily = GeneralConstants.FONT_FAMILY
-                        )
-                    }
-                }
                 Text(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.TopStart)
-                        .padding(
-                            start = GeneralConstants.IMAGE_TEXT_PADDING,
-                            end = GeneralConstants.IMAGE_TEXT_PADDING,
-                            bottom = GeneralConstants.IMAGE_TEXT_PADDING
-                        ),
-                    text = step.instructions,
-                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
+                        .wrapContentSize(Alignment.TopStart),
+                    text = "Step ${index + 1}",
+                    fontSize = RecipeConstants.STEP_FONT_SIZE,
                     textAlign = TextAlign.Start,
+                    fontFamily = GeneralConstants.FONT_FAMILY
+                )
+                item.minutes?.let {
+                    Text(
+                        modifier = Modifier
+                            .wrapContentSize(Alignment.TopEnd)
+                            .fillMaxWidth(),
+                        text = "${item.minutes} Minutes",
+                        fontSize = RecipeConstants.MINUTES_FONT_SIZE,
+                        textAlign = TextAlign.End,
+                        fontFamily = GeneralConstants.FONT_FAMILY
+                    )
+                }
+            }
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.TopStart)
+                    .padding(
+                        start = GeneralConstants.IMAGE_TEXT_PADDING,
+                        end = GeneralConstants.IMAGE_TEXT_PADDING,
+                        bottom = GeneralConstants.IMAGE_TEXT_PADDING
+                    ),
+                text = item.instructions,
+                fontSize = GeneralConstants.TEXT_FONT_SIZE,
+                textAlign = TextAlign.Start,
+                fontFamily = GeneralConstants.FONT_FAMILY
+            )
+        }
+    }
+}
+
+@Composable
+fun AddRecipeStep() {
+    val borderColor = colorResource(id = R.color.black)
+    val dashedStyle = Stroke(
+        width = RecipeConstants.BORDER_WIDTH,
+        pathEffect = PathEffect.dashPathEffect(
+            floatArrayOf(
+                RecipeConstants.RECIPE_CORNER_ROUNDING.toFloat(),
+                RecipeConstants.RECIPE_CORNER_ROUNDING.toFloat()
+            )
+        )
+    )
+    Column {
+        Box(
+            modifier = Modifier
+                .height(GeneralConstants.ITEM_SIZE)
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.background)
+                .drawBehind {
+                    drawRoundRect(
+                        color = borderColor,
+                        cornerRadius = CornerRadius(
+                            RecipeConstants.RECIPE_CORNER_ROUNDING.toFloat()
+                        ),
+                        style = dashedStyle
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(RecipeConstants.TEXT_ICON_SPACING)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.add),
+                    contentDescription = stringResource(id = R.string.add_icon)
+                )
+                Text(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center),
+                    text = stringResource(id = R.string.add_recipe_step),
+                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
+                    textAlign = TextAlign.Center,
                     fontFamily = GeneralConstants.FONT_FAMILY
                 )
             }
         }
-
-        item { Spacer(modifier = Modifier.padding(vertical = RecipeConstants.RECIPE_LIST_SPACER)) }
     }
 }
 
