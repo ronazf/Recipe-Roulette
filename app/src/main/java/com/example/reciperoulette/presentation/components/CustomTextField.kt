@@ -12,10 +12,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -26,7 +22,7 @@ import com.example.reciperoulette.presentation.GeneralConstants
 
 @Composable
 fun CustomTextField(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     placeHolder: String = "",
     value: String = "",
     onValueChange: (String) -> Unit,
@@ -34,8 +30,6 @@ fun CustomTextField(
     leadingIcon: @Composable ((onClick: () -> Unit) -> Unit)? = null,
     trailingIcon: @Composable ((visibility: Boolean, onClick: () -> Unit) -> Unit)? = null
 ) {
-    var text by remember { mutableStateOf(value) }
-
     val textSelectionColors = TextSelectionColors(
         handleColor = colorResource(id = R.color.grey),
         backgroundColor = colorResource(id = R.color.grey)
@@ -49,10 +43,9 @@ fun CustomTextField(
                 fontFamily = GeneralConstants.FONT_FAMILY
             ),
             singleLine = singleLine,
-            value = text,
+            value = value,
             onValueChange = {
-                text = it
-                onValueChange.invoke(it)
+                onValueChange(it)
             },
             cursorBrush = SolidColor(colorResource(id = R.color.black)),
             decorationBox = { innerTextField ->
@@ -68,12 +61,10 @@ fun CustomTextField(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .padding(
-                                    horizontal = GeneralConstants.IMAGE_TEXT_PADDING
-                                )
+                                .padding(GeneralConstants.TEXT_FIELD_PADDING)
                         ) {
                             innerTextField()
-                            if (text.isEmpty()) {
+                            if (value.isBlank()) {
                                 Text(
                                     text = placeHolder,
                                     style = LocalTextStyle.current.copy(
@@ -85,9 +76,8 @@ fun CustomTextField(
                         }
                     }
                     trailingIcon?.let {
-                        trailingIcon(text.isNotEmpty()) {
-                            text = ""
-                            onValueChange.invoke("")
+                        trailingIcon(value.isNotEmpty()) {
+                            onValueChange("")
                         }
                     }
                 }

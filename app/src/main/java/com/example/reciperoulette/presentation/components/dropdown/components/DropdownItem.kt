@@ -1,14 +1,15 @@
 package com.example.reciperoulette.presentation.components.dropdown.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -87,13 +88,20 @@ fun DropDownItem(
                     closeDropDown()
                 },
                 trailingIcon = {
-                    Icon(
+                    IconButton(
                         modifier = Modifier
                             .padding(start = GeneralConstants.IMAGE_TEXT_PADDING)
-                            .clickable { showAlert = true },
-                        painter = painterResource(id = R.drawable.remove),
-                        contentDescription = stringResource(id = R.string.remove)
-                    )
+                            .sizeIn(
+                                maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
+                                maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                            ),
+                        onClick = { showAlert = true }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.remove),
+                            contentDescription = stringResource(id = R.string.remove)
+                        )
+                    }
                 }
             )
         }

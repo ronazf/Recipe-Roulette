@@ -68,4 +68,6 @@
     <string name="copy_link">Copy Link Icon</string>
     <string name="link_copy_warning">Recipe link copied to clipboard.</string>
     <string name="add_recipe_step">Add Step</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
 </resources>

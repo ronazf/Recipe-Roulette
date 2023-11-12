@@ -4,6 +4,7 @@ import com.example.reciperoulette.data.local.recipes.entities.Recipe
 
 data class RecipeState(
     val recipe: Recipe? = null,
+    val editRecipe: Recipe? = null,
     val loading: Boolean = false,
     val info: Boolean = false,
     val error: String = "",

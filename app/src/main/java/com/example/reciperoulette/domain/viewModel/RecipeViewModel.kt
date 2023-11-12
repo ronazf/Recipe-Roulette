@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.reciperoulette.common.Resource
+import com.example.reciperoulette.data.local.recipes.RecipeIngredient
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.domain.useCase.recipesUC.RecipesUseCases
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent
+import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeInfoEvent
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -32,7 +34,8 @@ class RecipeViewModel @AssistedInject constructor(
         const val DUPLICATE_RECIPE = "This recipe is already in your saved recipe list."
         const val RECIPE_ADDED =
             "Recipe was successfully added to your recipe list."
-        private const val SAFE_WAIT = 5000L
+        const val RECIPE_UPDATED =
+            "Recipe was successfully updated."
 
         fun provideRecipeViewModelFactory(
             factory: Factory,
@@ -112,7 +115,8 @@ class RecipeViewModel @AssistedInject constructor(
             RecipeEvent.ShowInfo -> {
                 _state.update {
                     it.copy(
-                        info = true
+                        info = true,
+                        editRecipe = it.recipe
                     )
                 }
             }
@@ -158,6 +162,17 @@ class RecipeViewModel @AssistedInject constructor(
                 }
             }
 
+            RecipeEvent.SaveEditRecipe -> {
+                _state.update {
+                    it.copy(
+                        recipe = it.editRecipe
+                    )
+                }
+                _state.value.recipe?.let {
+                    upsertRecipe(it)
+                }
+            }
+
             RecipeEvent.RegenerateRecipe -> {
                 selectedIngredients?.let { getRecipe(selectedIngredients) }
             }
@@ -168,13 +183,92 @@ class RecipeViewModel @AssistedInject constructor(
         }
     }
 
+    fun onRecipeInfoEvent(event: RecipeInfoEvent) {
+        when (event) {
+            is RecipeInfoEvent.AddIngredient -> {
+                val updatedIngredients = _state.value.editRecipe?.ingredients?.toMutableList()
+                updatedIngredients?.add(
+                    RecipeIngredient(
+                        ingredient = ""
+                    )
+                )
+                updatedIngredients?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            editRecipe = it.editRecipe?.copy(
+                                ingredients = list
+                            )
+                        )
+                    }
+                }
+            }
+
+            is RecipeInfoEvent.RemoveIngredient -> {
+                val updatedIngredients = _state.value.editRecipe?.ingredients?.filterNot {
+                    it.id == event.id
+                }
+                updatedIngredients?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            editRecipe = it.editRecipe?.copy(
+                                ingredients = list
+                            )
+                        )
+                    }
+                }
+            }
+
+            is RecipeInfoEvent.EditIngredient -> {
+                val updatedIngredients = _state.value.editRecipe?.ingredients?.toMutableList()
+                updatedIngredients?.set(event.index, event.ingredient)
+                updatedIngredients?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            editRecipe = it.editRecipe?.copy(
+                                ingredients = list
+                            )
+                        )
+                    }
+                }
+            }
+
+            is RecipeInfoEvent.EditRecipeName -> {
+                _state.update {
+                    it.copy(
+                        editRecipe = it.editRecipe?.copy(
+                            recipeName = event.recipeName
+                        )
+                    )
+                }
+            }
+
+            is RecipeInfoEvent.EditRecipeServing -> {
+                _state.update {
+                    it.copy(
+                        editRecipe = it.editRecipe?.copy(
+                            serves = event.serves
+                        )
+                    )
+                }
+            }
+
+            RecipeInfoEvent.ResetEditRecipe -> {
+                _state.update {
+                    it.copy(
+                        editRecipe = it.recipe
+                    )
+                }
+            }
+        }
+    }
+
     private fun upsertRecipe(recipe: Recipe) {
         viewModelScope.launch {
             try {
                 recipeUC.upsertRecipe(recipe)
                 _state.update { recipeState ->
                     recipeState.copy(
-                        success = RECIPE_ADDED
+                        success = if (recipeState.info) RECIPE_UPDATED else RECIPE_ADDED
                     )
                 }
             } catch (e: SQLiteConstraintException) {

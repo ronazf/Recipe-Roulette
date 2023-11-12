@@ -19,6 +19,7 @@ class RecipeConstants {
         val RECIPE_SHADOW_DRAGGING_ELEVATION = 20.dp
         val BACK_BUTTON_TOP_MARGIN = 35.dp
         val BACK_BUTTON_LEFT_MARGIN = 10.dp
+        val MAX_DIALOG_ITEM_HEIGHT = 200.dp
         const val BORDER_WIDTH = 2F
         const val ROW_ITEM_WIDTH = 0.9F
         const val CORNER_ROUNDING = 35

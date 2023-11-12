@@ -3,9 +3,10 @@ package com.example.reciperoulette.domain.useCase.recipesUC.apiUC
 import android.util.Log
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.ingredients.entities.InvalidIngredientException
+import com.example.reciperoulette.data.local.recipes.RecipeIngredient
 import com.example.reciperoulette.data.local.recipes.RecipeStep
-import com.example.reciperoulette.data.local.recipes.details.IngredientNameDetail
 import com.example.reciperoulette.data.local.recipes.details.RecipeDetail
+import com.example.reciperoulette.data.local.recipes.details.RecipeIngredientDetail
 import com.example.reciperoulette.data.local.recipes.details.RecipeStepDetail
 import com.example.reciperoulette.data.local.recipes.entities.InvalidRecipeException
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
@@ -88,14 +89,16 @@ class GetRecipeUC @Inject constructor(
         }
     }
 
-    private fun getIngredients(array: JSONArray): List<String> {
-        val ingredients = arrayListOf<String>()
+    private fun getIngredients(array: JSONArray): List<RecipeIngredient> {
+        val ingredients = arrayListOf<RecipeIngredient>()
         for (i in 0 until array.length()) {
             val obj = array.getJSONObject(i)
             ingredients.add(
-                obj.getString(IngredientNameDetail.AMOUNT.strName) +
-                    " " +
-                    obj.getString(IngredientNameDetail.NAME.strName)
+                RecipeIngredient(
+                    ingredient = obj.getString(RecipeIngredientDetail.AMOUNT.strName) +
+                        " " +
+                        obj.getString(RecipeIngredientDetail.INGREDIENT.strName)
+                )
             )
         }
         return ingredients

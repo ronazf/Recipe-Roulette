@@ -1,7 +1,6 @@
 package com.example.reciperoulette.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -61,15 +61,12 @@ fun SearchTab(
                 value = value,
                 onValueChange = onValueChange,
                 placeHolder = placeHolder,
-                leadingIcon = { onClick ->
+                leadingIcon = {
                     Icon(
                         modifier = Modifier
                             .padding(
-                                start = GeneralConstants.IMAGE_TEXT_PADDING
-                            )
-                            .clickable {
-                                onClick()
-                            },
+                                horizontal = GeneralConstants.IMAGE_TEXT_PADDING
+                            ),
                         painter = painterResource(R.drawable.search),
                         contentDescription = stringResource(id = R.string.search_description)
                     )
@@ -80,18 +77,16 @@ fun SearchTab(
                         horizontalArrangement = Arrangement.End
                     ) {
                         if (visibility) {
-                            Icon(
-                                modifier = Modifier
-                                    .padding(
-                                        start = GeneralConstants.IMAGE_TEXT_PADDING,
-                                        end = GeneralConstants.IMAGE_TEXT_PADDING
-                                    )
-                                    .clickable {
-                                        onClick()
-                                    },
-                                painter = painterResource(R.drawable.close),
-                                contentDescription = stringResource(id = R.string.close_description)
-                            )
+                            IconButton(onClick = { onClick() }) {
+                                Icon(
+                                    modifier = Modifier
+                                        .padding(
+                                            horizontal = GeneralConstants.IMAGE_TEXT_PADDING
+                                        ),
+                                    painter = painterResource(R.drawable.close),
+                                    contentDescription = stringResource(id = R.string.close_description)
+                                )
+                            }
                             VerticalDivider(
                                 modifier = Modifier
                                     .height(GeneralConstants.VERTICAL_DIVIDER_HEIGHT)
@@ -99,18 +94,16 @@ fun SearchTab(
                                 color = colorResource(id = R.color.medium_grey)
                             )
                         }
-                        Icon(
-                            modifier = Modifier
-                                .padding(
-                                    start = GeneralConstants.IMAGE_TEXT_PADDING,
-                                    end = GeneralConstants.IMAGE_TEXT_PADDING
-                                )
-                                .clickable {
-                                    onFilter()
-                                },
-                            painter = filterIcon,
-                            contentDescription = filterIconDescription
-                        )
+                        IconButton(onClick = { onFilter() }) {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(
+                                        horizontal = GeneralConstants.IMAGE_TEXT_PADDING
+                                    ),
+                                painter = filterIcon,
+                                contentDescription = filterIconDescription
+                            )
+                        }
                     }
                 },
                 singleLine = true

@@ -33,13 +33,13 @@ import com.example.reciperoulette.R
 import com.example.reciperoulette.data.local.ingredients.details.CategoryDetail
 import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 import com.example.reciperoulette.presentation.GeneralConstants
-import com.example.reciperoulette.presentation.components.GenericBtn
 import com.example.reciperoulette.presentation.components.ItemRow
 import com.example.reciperoulette.presentation.components.SearchTab
 import com.example.reciperoulette.presentation.components.Title
 import com.example.reciperoulette.presentation.components.alertDialog.components.ErrorAlertDialog
 import com.example.reciperoulette.presentation.components.alertDialog.components.InputAlertDialog
 import com.example.reciperoulette.presentation.components.alertDialog.components.SuccessAlertDialog
+import com.example.reciperoulette.presentation.components.buttons.GenericButton
 import com.example.reciperoulette.presentation.components.dropdown.components.Dropdown
 import com.example.reciperoulette.presentation.components.dropdown.components.InnerDropdown
 import com.example.reciperoulette.presentation.components.dropdown.components.LayeredDropdown
@@ -145,7 +145,7 @@ fun IngredientSelectionScreen(
             }
         )
 
-        GenericBtn(
+        GenericButton(
             modifier = Modifier.constrainAs(generateBtn) {
                 bottom.linkTo(parent.bottom, margin = IngredientConstants.CLICKABLE_MARGIN)
                 absoluteLeft.linkTo(parent.absoluteLeft)
@@ -271,15 +271,18 @@ fun AddSearchFilter(
     var showFilter by remember { mutableStateOf(false) }
     val filterIcon = if (showFilter) R.drawable.close_filter else R.drawable.filter
     val filterIconDescription = if (showFilter) R.string.close_filter else R.string.filter
+    var searchText by remember { mutableStateOf("") }
 
     SearchTab(
         modifier = Modifier.fillMaxWidth(),
         color = colorResource(id = R.color.white),
+        value = searchText,
         placeHolder = stringResource(id = R.string.search_ingredient),
         filterIcon = painterResource(id = filterIcon),
         filterIconDescription = stringResource(id = filterIconDescription),
         onFilter = { showFilter = !showFilter }
     ) { it: String ->
+        searchText = it
         onIngredientEvent(
             IngredientEvent.SearchIngredient(it)
         )
@@ -302,7 +305,7 @@ fun AddCustomIngredientButton(
 ) {
     var showAlert by remember { mutableStateOf(false) }
 
-    GenericBtn(
+    GenericButton(
         modifier = Modifier
             .fillMaxSize()
             .height(IngredientConstants.ITEM_SIZE),

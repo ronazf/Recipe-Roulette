@@ -1,7 +1,9 @@
 package com.example.reciperoulette.data.local.typeConverters
 
 import androidx.room.TypeConverter
+import com.example.reciperoulette.data.local.recipes.RecipeIngredient
 import com.example.reciperoulette.data.local.recipes.RecipeStep
+import com.example.reciperoulette.data.local.recipes.details.RecipeIngredientDetail
 import com.example.reciperoulette.data.local.recipes.details.RecipeStepDetail
 import org.json.JSONObject
 import java.time.LocalDateTime
@@ -28,22 +30,37 @@ class Converters {
     }
 
     @TypeConverter
-    fun stringToIngredientList(str: String): List<String> {
+    fun stringToIngredientList(str: String): List<RecipeIngredient> {
         return str.removeSurrounding(ARRAY_PREFIX, ARRAY_SUFFIX)
             .split(SPLIT_SEQUENCE)
             .map {
-                it.trim(ARRAY_STRING_CHAR).trim()
+                try {
+                    val obj = JSONObject(it)
+                    RecipeIngredient(
+                        id = obj.getLong(RecipeIngredientDetail.ID.strName),
+                        ingredient = obj.getString(RecipeIngredientDetail.INGREDIENT.strName)
+                    )
+                } catch (e: Exception) {
+                    RecipeIngredient(
+                        ingredient = removeSpecialCharacters(
+                            it.trim(ARRAY_STRING_CHAR).trim()
+                        )
+                    )
+                }
             }
     }
 
     @TypeConverter
-    fun ingredientListToString(list: List<String>): String {
+    fun ingredientListToString(list: List<RecipeIngredient>): String {
+        val obj = JSONObject()
         return list.joinToString(
             separator = SPLIT_SEQUENCE,
             prefix = ARRAY_PREFIX,
             postfix = ARRAY_SUFFIX
         ) {
-            it
+            obj.put(RecipeIngredientDetail.ID.strName, it.id)
+            obj.put(RecipeIngredientDetail.INGREDIENT.strName, it.ingredient)
+            obj.toString()
         }
     }
 
@@ -58,9 +75,11 @@ class Converters {
                         instructions = obj.getString(RecipeStepDetail.INSTRUCTIONS.strName)
                             .replace(FAHRENHEIT_STR, FAHRENHEIT_CHAR),
                         minutes = if (obj.has(RecipeStepDetail.MINUTES.strName)) {
-                            obj.getInt(
-                                RecipeStepDetail.MINUTES.strName
-                            )
+                            if (obj.isNull(RecipeStepDetail.MINUTES.strName)) {
+                                null
+                            } else {
+                                obj.getInt(RecipeStepDetail.MINUTES.strName)
+                            }
                         } else { null }
                     )
                 } catch (e: Exception) {

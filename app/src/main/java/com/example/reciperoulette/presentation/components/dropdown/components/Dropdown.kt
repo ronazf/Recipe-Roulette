@@ -1,6 +1,5 @@
 package com.example.reciperoulette.presentation.components.dropdown.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -81,10 +81,10 @@ fun Dropdown(
                 fontSize = GeneralConstants.TEXT_FONT_SIZE,
                 fontFamily = GeneralConstants.FONT_FAMILY
             )
-            Image(
+            Icon(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = GeneralConstants.IMAGE_TEXT_PADDING),
+                    .padding(horizontal = GeneralConstants.IMAGE_TEXT_PADDING),
                 painter = painterResource(id = vector),
                 contentDescription = stringResource(id = vectorDescription)
             )

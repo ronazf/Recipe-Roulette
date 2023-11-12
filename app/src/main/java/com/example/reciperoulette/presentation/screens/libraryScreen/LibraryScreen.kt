@@ -1,6 +1,5 @@
 package com.example.reciperoulette.presentation.screens.libraryScreen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.reciperoulette.R
+import com.example.reciperoulette.data.local.recipes.RecipeIngredient
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.presentation.GeneralConstants
 import com.example.reciperoulette.presentation.components.SearchTab
@@ -100,6 +102,7 @@ fun AddSearchFilter(
     var showFilter by remember { mutableStateOf(false) }
     val filterIcon = if (showFilter) R.drawable.close_filter else R.drawable.filter
     val filterIconDescription = if (showFilter) R.string.close_filter else R.string.filter
+    var text by remember { mutableStateOf(searchText) }
 
     Column(
         modifier = modifier.fillMaxWidth()
@@ -109,11 +112,12 @@ fun AddSearchFilter(
             color = colorResource(id = R.color.white),
             shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING),
             placeHolder = stringResource(id = R.string.search_recipe),
-            value = searchText,
+            value = text,
             filterIcon = painterResource(id = filterIcon),
             filterIconDescription = stringResource(id = filterIconDescription),
             onFilter = { showFilter = !showFilter }
         ) { it: String ->
+            text = it
             onLibraryEvent(
                 LibraryEvent.SearchRecipe(it)
             )
@@ -175,6 +179,7 @@ fun RecipeRow(
         if (recipe.favourite) R.drawable.favourite_filled else R.drawable.favourite_boarder
     val favouriteDescription =
         if (recipe.favourite) R.string.favourite_filled else R.string.favourite_boarder
+    val favouriteIconTint = if (recipe.favourite) R.color.red else R.color.black
 
     var showAlert by remember { mutableStateOf(false) }
 
@@ -230,43 +235,55 @@ fun RecipeRow(
                     LibraryConstants.LIBRARY_ROW_IMAGE_SPACING
                 )
             ) {
-                Image(
+                IconButton(
                     modifier = Modifier
-                        .padding(
-                            end = GeneralConstants.IMAGE_TEXT_PADDING
-                        )
-                        .clickable {
-                            setFavourite(recipe.recipeId)
-                        },
-                    painter = painterResource(id = favouriteIcon),
-                    contentDescription = stringResource(id = favouriteDescription)
-                )
+                        .sizeIn(
+                            maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
+                            maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                        ),
+                    onClick = { setFavourite(recipe.recipeId) }
+                ) {
+                    Icon(
+                        painter = painterResource(id = favouriteIcon),
+                        contentDescription = stringResource(id = favouriteDescription),
+                        tint = colorResource(id = favouriteIconTint)
+                    )
+                }
                 recipe.link?.let {
                     val uriHandler = LocalUriHandler.current
 
-                    Icon(
+                    IconButton(
                         modifier = Modifier
-                            .padding(
-                                end = GeneralConstants.IMAGE_TEXT_PADDING
-                            )
-                            .clickable {
-                                uriHandler.openUri("${LibraryConstants.LINK_URI_PREFIX}$it")
-                            },
-                        painter = painterResource(id = R.drawable.open_link),
-                        contentDescription = stringResource(id = R.string.open_link)
-                    )
+                            .sizeIn(
+                                maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
+                                maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                            ),
+                        onClick = {
+                            uriHandler.openUri("${LibraryConstants.LINK_URI_PREFIX}$it")
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.open_link),
+                            contentDescription = stringResource(id = R.string.open_link)
+                        )
+                    }
                 }
-                Icon(
+                IconButton(
                     modifier = Modifier
                         .padding(
                             end = GeneralConstants.IMAGE_TEXT_PADDING
                         )
-                        .clickable {
-                            showAlert = true
-                        },
-                    painter = painterResource(id = R.drawable.delete),
-                    contentDescription = stringResource(id = R.string.delete)
-                )
+                        .sizeIn(
+                            maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
+                            maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                        ),
+                    onClick = { showAlert = true }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.delete),
+                        contentDescription = stringResource(id = R.string.delete)
+                    )
+                }
             }
         }
     }
@@ -298,7 +315,11 @@ fun DefaultPreview() {
         Recipe(
             recipeName = "recipe1",
             ingredients =
-            listOf("Carrot", "Beef Broth", "Potatoes"),
+            listOf(
+                RecipeIngredient(ingredient = "Carrot"),
+                RecipeIngredient(ingredient = "Beef Broth"),
+                RecipeIngredient(ingredient = "Potatoes")
+            ),
             steps = listOf()
         ),
         Recipe(

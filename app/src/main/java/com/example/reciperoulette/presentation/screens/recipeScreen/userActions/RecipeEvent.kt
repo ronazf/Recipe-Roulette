@@ -5,6 +5,7 @@ import com.example.reciperoulette.data.local.recipes.RecipeStep
 sealed interface RecipeEvent {
     data class DragRecipe(val beginIndex: Int, val endIndex: Int) : RecipeEvent
     data class EditRecipe(val recipeStep: RecipeStep, val index: Int) : RecipeEvent
+    data object SaveEditRecipe : RecipeEvent
     data class AddRecipeStep(val recipeStep: RecipeStep, val index: Int) : RecipeEvent
     data object ShowInfo : RecipeEvent
     data object DismissInfo : RecipeEvent

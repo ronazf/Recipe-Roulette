@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +25,7 @@ import com.example.reciperoulette.R
 import com.example.reciperoulette.presentation.GeneralConstants
 import com.example.reciperoulette.presentation.components.CustomTextField
 import com.example.reciperoulette.presentation.components.alertDialog.AlertDialogConstants
+import com.example.reciperoulette.presentation.components.buttons.GenericTextButton
 
 @Composable
 fun InputAlertDialog(
@@ -76,39 +76,31 @@ fun InputAlertDialog(
             onCancel()
         },
         confirmButton = {
-            TextButton(
+            val color = if (inputIngredient.isNotEmpty()) {
+                colorResource(id = R.color.green)
+            } else {
+                colorResource(id = R.color.grey)
+            }
+            GenericTextButton(
                 modifier = Modifier
                     .fillMaxWidth(AlertDialogConstants.CANCELABLE_WIDTH)
                     .wrapContentWidth(Alignment.End),
-                onClick = {
-                    onVerify(inputIngredient.trim())
-                },
+                text = stringResource(id = R.string.verify_ingredient),
+                color = color,
                 enabled = inputIngredient.isNotEmpty()
             ) {
-                Text(
-                    text = stringResource(id = R.string.verify_ingredient),
-                    color = colorResource(id = R.color.green),
-                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
-                    fontFamily = GeneralConstants.FONT_FAMILY
-                )
+                onVerify(inputIngredient.trim())
             }
         },
         dismissButton = {
-            TextButton(
+            GenericTextButton(
                 modifier = Modifier
                     .fillMaxWidth(AlertDialogConstants.CANCELABLE_WIDTH)
                     .wrapContentWidth(Alignment.Start),
-                onClick = {
-                    onCancel()
-                }
-
+                text = stringResource(id = R.string.cancel),
+                color = colorResource(id = R.color.red)
             ) {
-                Text(
-                    text = stringResource(id = R.string.cancel),
-                    color = colorResource(id = R.color.red),
-                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
-                    fontFamily = GeneralConstants.FONT_FAMILY
-                )
+                onCancel()
             }
         }
     )

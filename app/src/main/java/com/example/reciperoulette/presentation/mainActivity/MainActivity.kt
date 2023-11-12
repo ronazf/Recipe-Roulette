@@ -131,6 +131,7 @@ class MainActivity : ComponentActivity() {
                                     RecipeScreen(
                                         state = state,
                                         onRecipeEvent = recipeViewModel::onRecipeEvent,
+                                        onRecipeInfoEvent = recipeViewModel::onRecipeInfoEvent,
                                         navigateBack = { navController.popBackStack() },
                                         onLoad = { resource, resourceDescription ->
                                             loading = true
@@ -186,6 +187,7 @@ class MainActivity : ComponentActivity() {
                                     RecipeScreen(
                                         state = state,
                                         onRecipeEvent = recipeViewModel::onRecipeEvent,
+                                        onRecipeInfoEvent = recipeViewModel::onRecipeInfoEvent,
                                         navigateBack = { navController.popBackStack() },
                                         onLoad = { resource, resourceDescription ->
                                             loading = true

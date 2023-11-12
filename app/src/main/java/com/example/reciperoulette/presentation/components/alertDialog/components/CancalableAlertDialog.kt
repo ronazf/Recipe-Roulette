@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.reciperoulette.R
 import com.example.reciperoulette.presentation.GeneralConstants
 import com.example.reciperoulette.presentation.components.alertDialog.AlertDialogConstants
+import com.example.reciperoulette.presentation.components.buttons.GenericTextButton
 
 @Composable
 fun CancelableAlertDialog(
@@ -56,37 +56,25 @@ fun CancelableAlertDialog(
             onCancel()
         },
         confirmButton = {
-            TextButton(
+            GenericTextButton(
                 modifier = Modifier
                     .fillMaxWidth(AlertDialogConstants.CANCELABLE_WIDTH)
                     .wrapContentWidth(Alignment.End),
-                onClick = {
-                    onConfirm()
-                }
+                text = stringResource(id = R.string.confirm),
+                color = colorResource(id = R.color.green)
             ) {
-                Text(
-                    text = stringResource(id = R.string.confirm),
-                    color = colorResource(id = R.color.green),
-                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
-                    fontFamily = GeneralConstants.FONT_FAMILY
-                )
+                onConfirm()
             }
         },
         dismissButton = {
-            TextButton(
+            GenericTextButton(
                 modifier = Modifier
                     .fillMaxWidth(AlertDialogConstants.CANCELABLE_WIDTH)
                     .wrapContentWidth(Alignment.Start),
-                onClick = {
-                    onCancel()
-                }
+                text = stringResource(id = R.string.cancel),
+                color = colorResource(id = R.color.red)
             ) {
-                Text(
-                    text = stringResource(id = R.string.cancel),
-                    color = colorResource(id = R.color.red),
-                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
-                    fontFamily = GeneralConstants.FONT_FAMILY
-                )
+                onCancel()
             }
         }
     )

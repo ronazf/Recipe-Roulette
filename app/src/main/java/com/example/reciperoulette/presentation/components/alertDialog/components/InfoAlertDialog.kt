@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.reciperoulette.R
 import com.example.reciperoulette.presentation.GeneralConstants
 import com.example.reciperoulette.presentation.components.alertDialog.AlertDialogConstants
+import com.example.reciperoulette.presentation.components.buttons.GenericTextButton
 
 @Composable
 fun InfoAlertDialog(
@@ -48,21 +48,14 @@ fun InfoAlertDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(
+            GenericTextButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentWidth(Alignment.CenterHorizontally),
-                onClick = {
-                    onDismiss()
-                }
-
+                text = stringResource(id = R.string.dismiss),
+                color = colorResource(id = R.color.dark_blue)
             ) {
-                Text(
-                    text = stringResource(id = R.string.dismiss),
-                    color = colorResource(id = R.color.dark_blue),
-                    fontSize = GeneralConstants.TEXT_FONT_SIZE,
-                    fontFamily = GeneralConstants.FONT_FAMILY
-                )
+                onDismiss()
             }
         }
     )

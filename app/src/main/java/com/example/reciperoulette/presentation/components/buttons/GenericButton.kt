@@ -1,4 +1,4 @@
-package com.example.reciperoulette.presentation.components
+package com.example.reciperoulette.presentation.components.buttons
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +19,7 @@ import com.example.reciperoulette.presentation.GeneralConstants
 import com.example.reciperoulette.presentation.screens.homeScreen.HomeConstants
 
 @Composable
-fun GenericBtn(
+fun GenericButton(
     modifier: Modifier,
     text: String,
     textAlignment: TextAlign = TextAlign.Center,

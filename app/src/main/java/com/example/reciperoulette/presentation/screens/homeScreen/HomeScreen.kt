@@ -21,8 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.reciperoulette.R
-import com.example.reciperoulette.presentation.components.GenericBtn
 import com.example.reciperoulette.presentation.components.Title
+import com.example.reciperoulette.presentation.components.buttons.GenericButton
 import com.example.reciperoulette.presentation.components.image.components.BackgroundImage
 
 @Composable
@@ -51,7 +51,7 @@ fun HomeScreen(navigateToIngredient: () -> Unit) {
             painter = painterResource(id = R.drawable.cooking),
             description = stringResource(id = R.string.home_background)
         )
-        GenericBtn(
+        GenericButton(
             modifier = Modifier.constrainAs(startBtn) {
                 bottom.linkTo(parent.bottom, margin = HomeConstants.CLICKABLE_MARGIN)
                 absoluteLeft.linkTo(parent.absoluteLeft)
