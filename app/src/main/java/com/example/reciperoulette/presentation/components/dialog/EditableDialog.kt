@@ -13,9 +13,6 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -29,6 +26,7 @@ import com.example.reciperoulette.presentation.components.buttons.GenericTextBut
 @Composable
 fun EditableDialog(
     modifier: Modifier,
+    editStatus: Boolean,
     onEdit: () -> Unit = {},
     onCancel: () -> Unit = {},
     onDismiss: () -> Unit,
@@ -55,6 +53,7 @@ fun EditableDialog(
             ) {
                 EditableButtonIconRow(
                     icon = icon,
+                    editStatus = editStatus,
                     onEdit = onEdit,
                     onCancel = onCancel
                 )
@@ -77,6 +76,7 @@ fun EditableDialog(
 @Composable
 internal fun EditableButtonIconRow(
     icon: @Composable (modifier: Modifier) -> Unit,
+    editStatus: Boolean,
     onEdit: () -> Unit = {},
     onCancel: () -> Unit = {}
 ) {
@@ -86,10 +86,9 @@ internal fun EditableButtonIconRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        var editing by remember { mutableStateOf(false) }
-        val text = if (editing) R.string.save else R.string.edit
-        val color = if (editing) R.color.green else R.color.dark_blue
-        val cancelAlpha by animateFloatAsState(targetValue = if (editing) 1F else 0F, label = "")
+        val text = if (editStatus) R.string.save else R.string.edit
+        val color = if (editStatus) R.color.green else R.color.dark_blue
+        val cancelAlpha by animateFloatAsState(targetValue = if (editStatus) 1F else 0F, label = "")
 
         GenericTextButton(
             modifier = Modifier
@@ -97,7 +96,6 @@ internal fun EditableButtonIconRow(
             text = stringResource(id = text),
             color = colorResource(id = color)
         ) {
-            editing = !editing
             onEdit()
         }
         icon(
@@ -110,9 +108,8 @@ internal fun EditableButtonIconRow(
                 .graphicsLayer(alpha = cancelAlpha),
             text = stringResource(id = R.string.cancel),
             color = colorResource(id = R.color.red),
-            enabled = editing
+            enabled = editStatus
         ) {
-            editing = false
             onCancel()
         }
     }

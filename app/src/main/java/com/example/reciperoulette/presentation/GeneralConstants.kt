@@ -10,6 +10,7 @@ class GeneralConstants {
     companion object {
         val BUTTON_FONT_SIZE = 20.sp
         val ITEM_SIZE = 45.dp
+        val NUMERICAL_ITEM_SIZE = 25.dp
         val ITEM_ROW_MARGIN = 4.dp
         val DROP_SHADOW_ELEVATION = 8.dp
         val VERTICAL_DIVIDER_SHADOW = 2.dp
@@ -23,6 +24,9 @@ class GeneralConstants {
         val BLUR_RADIUS = 5.dp
         val UN_BLUR_RADIUS = 0.dp
         val BORDER_WIDTH = 1.dp
+        val TEXT_FIELD_CORNER_ROUNDING = 15.dp
+        val MAX_TEXT_FIELD_HEIGHT = 100.dp
         const val CORNER_ROUNDING = 35
+        const val MAX_NUMERICAL_SPACE = 4
     }
 }

@@ -1,13 +1,11 @@
 package com.example.reciperoulette.presentation.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -36,14 +34,17 @@ fun EditableText(
     isEditing: Boolean,
     numerical: Boolean = false,
     onValueChange: ((text: String) -> Unit)? = null,
-    onRemove: (() -> Unit)? = null
+    onRemove: (() -> Unit)? = null,
+    nullable: Boolean = true,
+    singleLine: Boolean = true,
+    content: @Composable (() -> Unit)? = null
 ) {
-    val removableItemWidth = if (onRemove == null) 1F else 0.9F
+    var isValid by remember { mutableStateOf(true) }
 
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         label?.let {
             Text(
@@ -55,50 +56,61 @@ fun EditableText(
         }
         var editText by remember { mutableStateOf(text) }
 
-        if (isEditing && placeHolder != null) {
-            CustomTextField(
-                modifier = Modifier
-                    .fillMaxWidth(removableItemWidth)
-                    .padding(
-                        horizontal = GeneralConstants.IMAGE_TEXT_PADDING
-                    )
-                    .border(
-                        border = BorderStroke(
-                            width = GeneralConstants.BORDER_WIDTH,
-                            color = colorResource(id = R.color.grey)
-                        ),
-                        shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING)
-                    ),
-                placeHolder = placeHolder,
-                value = editText ?: "",
-                onValueChange = {
-                    if (
-                        (numerical && it.isDigitsOnly()) ||
-                        !numerical
-                    ) {
-                        editText = it
-                    }
-                    onValueChange?.let { onValueChange ->
-                        onValueChange(it)
-                    }
-                },
-                singleLine = true
-            )
-            onRemove?.let { remove ->
-                IconButton(
+        if (isEditing &&
+            (placeHolder != null || content != null)
+        ) {
+            content?.let {
+                content()
+            }
+
+            placeHolder?.let {
+                CustomTextField(
                     modifier = Modifier
-                        .sizeIn(
-                            maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
-                            maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                        .wrapContentSize()
+                        .padding(
+                            horizontal = GeneralConstants.IMAGE_TEXT_PADDING
                         ),
-                    onClick = {
-                        remove()
+                    borderStroke = BorderStroke(
+                        width = GeneralConstants.BORDER_WIDTH,
+                        color = colorResource(id = R.color.grey)
+                    ),
+                    placeHolder = placeHolder,
+                    value = editText ?: "",
+                    onValueChange = {
+                        if (
+                            (
+                                numerical && it.isDigitsOnly() &&
+                                    it.length < GeneralConstants.MAX_NUMERICAL_SPACE
+                                ) ||
+                            !numerical
+                        ) {
+                            editText = it
+                            isValid = !(it.isBlank() && !nullable)
+                            onValueChange?.let { onValueChange ->
+                                onValueChange(it)
+                            }
+                        }
+                    },
+                    singleLine = singleLine,
+                    isError = !isValid,
+                    error = stringResource(id = R.string.non_empty_field)
+                )
+                onRemove?.let { remove ->
+                    IconButton(
+                        modifier = Modifier
+                            .sizeIn(
+                                maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
+                                maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                            ),
+                        onClick = {
+                            remove()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.remove),
+                            contentDescription = stringResource(id = R.string.remove)
+                        )
                     }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.remove),
-                        contentDescription = stringResource(id = R.string.remove)
-                    )
                 }
             }
         } else {
@@ -112,7 +124,7 @@ fun EditableText(
                     fontSize = GeneralConstants.TEXT_FONT_SIZE,
                     textAlign = TextAlign.Start,
                     fontFamily = GeneralConstants.FONT_FAMILY,
-                    maxLines = 1,
+                    maxLines = if (singleLine) 1 else Int.MAX_VALUE,
                     overflow = TextOverflow.Ellipsis
                 )
             }

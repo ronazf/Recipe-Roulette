@@ -1,12 +1,13 @@
 package com.example.reciperoulette.presentation.screens.recipeScreen.userActions
 
-import com.example.reciperoulette.data.local.recipes.RecipeStep
-
 sealed interface RecipeEvent {
     data class DragRecipe(val beginIndex: Int, val endIndex: Int) : RecipeEvent
-    data class EditRecipe(val recipeStep: RecipeStep, val index: Int) : RecipeEvent
-    data object SaveEditRecipe : RecipeEvent
-    data class AddRecipeStep(val recipeStep: RecipeStep, val index: Int) : RecipeEvent
+    data object SaveEditRecipeStep : RecipeEvent
+    data object SaveEditRecipeInfo : RecipeEvent
+    data object AddRecipeStep : RecipeEvent
+    data class EditRecipeInfo(val isEditing: Boolean) : RecipeEvent
+    data class EditRecipeStep(val recipeStep: Int, val isEditing: Boolean) : RecipeEvent
+    data object DismissStep : RecipeEvent
     data object ShowInfo : RecipeEvent
     data object DismissInfo : RecipeEvent
     data object RegenerateRecipe : RecipeEvent

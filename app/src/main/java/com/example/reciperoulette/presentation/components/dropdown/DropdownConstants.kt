@@ -5,7 +5,8 @@ import androidx.compose.ui.unit.dp
 class DropdownConstants {
     companion object {
         val MAX_DROPDOWN_HEIGHT = 350.dp
-        const val ROW_ITEM_WIDTH = 0.75F
+        val MAX_SMALL_DROPDOWN_HEIGHT = 200.dp
+        val NUMERICAL_ITEM_WIDTH = 55.dp
         const val CORNER_ROUNDING = 5
     }
 }

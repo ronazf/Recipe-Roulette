@@ -203,7 +203,7 @@ fun AddDropdown(
     Dropdown(
         modifier = modifier.fillMaxWidth(IngredientConstants.ROW_ITEM_WIDTH),
         name = stringResource(id = R.string.add_ingredient),
-        isLastLevel = false,
+        openStacked = false,
         forceClose = forceClose,
         color = colorResource(id = R.color.green),
         shape = RoundedCornerShape(IngredientConstants.CORNER_ROUNDING),
@@ -222,7 +222,7 @@ fun AddLayeredDropdown(
     mappedIngredients.onEach { entry ->
         LayeredDropdown(
             modifier = Modifier.fillMaxWidth(),
-            entry = entry
+            name = entry.key.strName
         ) {
             AddInnerDropdown(
                 modifier = Modifier,

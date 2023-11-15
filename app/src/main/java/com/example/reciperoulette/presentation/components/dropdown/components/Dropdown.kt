@@ -28,9 +28,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import com.example.reciperoulette.R
-import com.example.reciperoulette.data.local.ingredients.details.CategoryDetail
-import com.example.reciperoulette.data.local.ingredients.entities.Ingredient
 import com.example.reciperoulette.presentation.GeneralConstants
 import com.example.reciperoulette.presentation.components.dropdown.DropdownConstants
 
@@ -38,12 +37,13 @@ import com.example.reciperoulette.presentation.components.dropdown.DropdownConst
 fun Dropdown(
     modifier: Modifier,
     name: String,
-    isLastLevel: Boolean,
+    openStacked: Boolean,
     forceClose: Boolean = false,
     color: Color,
     shape: Shape,
+    height: Dp = GeneralConstants.ITEM_SIZE,
     onDismiss: () -> Unit = {},
-    content: @Composable (() -> Unit) -> Unit
+    content: @Composable (onSelect: () -> Unit) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val vector = if (isExpanded) R.drawable.expand_less else R.drawable.expand_more
@@ -61,7 +61,7 @@ fun Dropdown(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(GeneralConstants.ITEM_SIZE)
+                .height(height)
                 .shadow(
                     elevation = GeneralConstants.DROP_SHADOW_ELEVATION,
                     shape = shape
@@ -88,7 +88,7 @@ fun Dropdown(
                 painter = painterResource(id = vector),
                 contentDescription = stringResource(id = vectorDescription)
             )
-            if (isLastLevel) {
+            if (openStacked) {
                 return@Box
             }
             if (isExpanded) {
@@ -98,8 +98,7 @@ fun Dropdown(
                     )
                 ) {
                     DropdownMenu(
-                        modifier = Modifier
-                            .fillMaxWidth(DropdownConstants.ROW_ITEM_WIDTH)
+                        modifier = modifier
                             .align(Alignment.Center)
                             .heightIn(max = DropdownConstants.MAX_DROPDOWN_HEIGHT)
                             .background(color = colorResource(id = R.color.white)),
@@ -118,7 +117,7 @@ fun Dropdown(
             }
         }
     }
-    if ((isLastLevel) && isExpanded) {
+    if ((openStacked) && isExpanded) {
         content {
             onDismiss()
             isExpanded = false
@@ -129,15 +128,17 @@ fun Dropdown(
 @Composable
 fun LayeredDropdown(
     modifier: Modifier,
-    entry: Map.Entry<CategoryDetail, List<Ingredient>>,
+    name: String,
+    shape: Shape = RectangleShape,
+    openStacked: Boolean = true,
     content: @Composable () -> Unit
 ) {
     Dropdown(
         modifier = modifier.fillMaxWidth(),
-        name = entry.key.strName,
-        isLastLevel = true,
+        name = name,
+        openStacked = openStacked,
         color = colorResource(id = R.color.white),
-        shape = RectangleShape,
+        shape = shape,
         content = {
             content()
         }
@@ -158,7 +159,7 @@ fun InnerDropdown(
         name = name,
         selectedItems = selectedItems,
         onSelect = onSelect,
-        closeDropDown = { onDismiss.invoke() },
+        closeDropDown = { onDismiss() },
         onRemove = onRemove,
         duplicateWarningResource = R.string.ingredient_already_selected
     )

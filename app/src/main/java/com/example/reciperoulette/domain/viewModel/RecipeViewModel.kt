@@ -6,11 +6,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.reciperoulette.common.Resource
 import com.example.reciperoulette.data.local.recipes.RecipeIngredient
+import com.example.reciperoulette.data.local.recipes.RecipeStep
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import com.example.reciperoulette.domain.useCase.recipesUC.RecipesUseCases
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeInfoEvent
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeState
+import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeStepEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -32,10 +34,12 @@ class RecipeViewModel @AssistedInject constructor(
     companion object {
         const val UNKNOWN_ERROR = "An unknown error has occurred."
         const val DUPLICATE_RECIPE = "This recipe is already in your saved recipe list."
-        const val RECIPE_ADDED =
-            "Recipe was successfully added to your recipe list."
-        const val RECIPE_UPDATED =
-            "Recipe was successfully updated."
+        const val RECIPE_ADDED = "Recipe was successfully added to your recipe list."
+        const val RECIPE_UPDATED = "Recipe was successfully updated."
+        const val INVALID_RECIPE_INFO = "Invalid format. " +
+            "Please make sure recipe name and ingredients are not empty."
+        const val INVALID_RECIPE_STEP = "Invalid format. " +
+            "Please make sure step instructions are not empty."
 
         fun provideRecipeViewModelFactory(
             factory: Factory,
@@ -57,7 +61,8 @@ class RecipeViewModel @AssistedInject constructor(
         require(selectedIngredients != null || recipeId != null) {
             _state.update {
                 it.copy(
-                    error = UNKNOWN_ERROR
+                    error = UNKNOWN_ERROR,
+                    showDialog = true
                 )
             }
         }
@@ -96,18 +101,49 @@ class RecipeViewModel @AssistedInject constructor(
             }
 
             is RecipeEvent.AddRecipeStep -> {
-                val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
-                updatedRecipe?.add(
-                    event.index,
-                    event.recipeStep
+                val updatedSteps = _state.value.recipe?.steps?.toMutableList()
+                updatedSteps?.add(
+                    RecipeStep()
                 )
+                updatedSteps?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            isEditing = true,
+                            editStep = list.size - 1,
+                            editRecipe = it.recipe?.copy(
+                                steps = list
+                            ),
+                            addStep = true
+                        )
+                    }
+                }
+            }
+
+            is RecipeEvent.EditRecipeInfo -> {
                 _state.update {
                     it.copy(
-                        recipe = updatedRecipe?.toList()?.let { steps ->
-                            _state.value.recipe?.copy(
-                                steps = steps
-                            )
-                        }
+                        isEditing = event.isEditing,
+                        editRecipe = it.recipe
+                    )
+                }
+            }
+
+            is RecipeEvent.EditRecipeStep -> {
+                _state.update {
+                    it.copy(
+                        isEditing = event.isEditing,
+                        editStep = event.recipeStep,
+                        editRecipe = it.recipe,
+                        addStep = false
+                    )
+                }
+            }
+
+            RecipeEvent.DismissStep -> {
+                _state.update {
+                    it.copy(
+                        editStep = null,
+                        isEditing = false
                     )
                 }
             }
@@ -124,7 +160,8 @@ class RecipeViewModel @AssistedInject constructor(
             RecipeEvent.DismissInfo -> {
                 _state.update {
                     it.copy(
-                        info = false
+                        info = false,
+                        isEditing = false
                     )
                 }
             }
@@ -132,7 +169,8 @@ class RecipeViewModel @AssistedInject constructor(
             RecipeEvent.ClearError -> {
                 _state.update {
                     it.copy(
-                        error = ""
+                        error = "",
+                        showDialog = false
                     )
                 }
             }
@@ -140,36 +178,56 @@ class RecipeViewModel @AssistedInject constructor(
             RecipeEvent.ClearSuccess -> {
                 _state.update {
                     it.copy(
-                        success = ""
+                        success = "",
+                        showDialog = false
                     )
                 }
             }
 
-            is RecipeEvent.EditRecipe -> {
-                val updatedRecipe = _state.value.recipe?.steps?.toMutableList()
-                updatedRecipe?.set(
-                    event.index,
-                    event.recipeStep
-                )
-                _state.update {
-                    it.copy(
-                        recipe = updatedRecipe?.toList()?.let { steps ->
-                            _state.value.recipe?.copy(
-                                steps = steps
-                            )
-                        }
-                    )
-                }
-            }
+            RecipeEvent.SaveEditRecipeInfo -> {
+                val isValid = checkRecipeInfoEditValidity()
 
-            RecipeEvent.SaveEditRecipe -> {
-                _state.update {
-                    it.copy(
-                        recipe = it.editRecipe
-                    )
+                if (!isValid) {
+                    _state.update {
+                        it.copy(
+                            error = INVALID_RECIPE_INFO
+                        )
+                    }
+                    return
                 }
                 _state.value.recipe?.let {
                     upsertRecipe(it)
+                }
+                _state.update {
+                    it.copy(
+                        recipe = it.editRecipe,
+                        isEditing = false,
+                        info = false
+                    )
+                }
+            }
+
+            is RecipeEvent.SaveEditRecipeStep -> {
+                val isValid = checkRecipeStepValidity()
+
+                if (!isValid) {
+                    _state.update {
+                        it.copy(
+                            error = INVALID_RECIPE_STEP
+                        )
+                    }
+                    return
+                }
+                _state.value.recipe?.let {
+                    upsertRecipe(it)
+                }
+                _state.update {
+                    it.copy(
+                        recipe = it.editRecipe,
+                        isEditing = false,
+                        editStep = null,
+                        addStep = false
+                    )
                 }
             }
 
@@ -220,7 +278,15 @@ class RecipeViewModel @AssistedInject constructor(
 
             is RecipeInfoEvent.EditIngredient -> {
                 val updatedIngredients = _state.value.editRecipe?.ingredients?.toMutableList()
-                updatedIngredients?.set(event.index, event.ingredient)
+                updatedIngredients?.forEachIndexed { index, recipeIngredient ->
+                    if (recipeIngredient.id == event.id) {
+                        updatedIngredients[index] = RecipeIngredient(
+                            event.id,
+                            event.ingredient
+                        )
+                        return@forEachIndexed
+                    }
+                }
                 updatedIngredients?.toList()?.let { list ->
                     _state.update {
                         it.copy(
@@ -251,24 +317,116 @@ class RecipeViewModel @AssistedInject constructor(
                     )
                 }
             }
+        }
+    }
 
-            RecipeInfoEvent.ResetEditRecipe -> {
-                _state.update {
-                    it.copy(
-                        editRecipe = it.recipe
+    fun onRecipeStepEvent(event: RecipeStepEvent) {
+        when (event) {
+            is RecipeStepEvent.EditStepNumber -> {
+                val updatedSteps = _state.value.editRecipe?.steps?.toMutableList()
+                val removedStep = _state.value.editStep?.let {
+                    updatedSteps?.removeAt(it)
+                }
+                removedStep?.let {
+                    updatedSteps?.add(
+                        event.step,
+                        removedStep
                     )
+                }
+                updatedSteps?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            editRecipe = it.editRecipe?.copy(
+                                steps = list
+                            ),
+                            editStep = event.step
+                        )
+                    }
+                }
+            }
+
+            is RecipeStepEvent.EditMinutes -> {
+                val updatedSteps = _state.value.editRecipe?.steps?.toMutableList()
+                _state.value.editStep?.let { stepNumber ->
+                    updatedSteps?.set(
+                        stepNumber,
+                        RecipeStep(
+                            instructions = updatedSteps[stepNumber].instructions,
+                            minutes = event.minutes
+                        )
+                    )
+                }
+                updatedSteps?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            editRecipe = it.editRecipe?.copy(
+                                steps = list
+                            )
+                        )
+                    }
+                }
+            }
+
+            is RecipeStepEvent.EditInstructions -> {
+                val updatedSteps = _state.value.editRecipe?.steps?.toMutableList()
+                _state.value.editStep?.let { stepNumber ->
+                    updatedSteps?.set(
+                        stepNumber,
+                        RecipeStep(
+                            instructions = event.instructions,
+                            minutes = updatedSteps[stepNumber].minutes
+                        )
+                    )
+                }
+                updatedSteps?.toList()?.let { list ->
+                    _state.update {
+                        it.copy(
+                            editRecipe = it.editRecipe?.copy(
+                                steps = list
+                            )
+                        )
+                    }
                 }
             }
         }
     }
 
+    private fun checkRecipeInfoEditValidity(): Boolean {
+        _state.value.editRecipe?.ingredients?.forEach {
+            if (it.ingredient.isBlank()) {
+                return false
+            }
+        }
+
+        if (_state.value.editRecipe?.recipeName?.isBlank() == true) {
+            return false
+        }
+
+        return true
+    }
+
+    private fun checkRecipeStepValidity(): Boolean {
+        _state.value.editStep?.let {
+            if (_state.value.editRecipe?.steps?.get(it)?.instructions?.isBlank() == true) {
+                return false
+            }
+        } ?: return false
+
+        return true
+    }
+
     private fun upsertRecipe(recipe: Recipe) {
+        val successMessage = if (_state.value.info || state.value.editStep != null) {
+            RECIPE_UPDATED
+        } else {
+            RECIPE_ADDED
+        }
         viewModelScope.launch {
             try {
                 recipeUC.upsertRecipe(recipe)
                 _state.update { recipeState ->
                     recipeState.copy(
-                        success = if (recipeState.info) RECIPE_UPDATED else RECIPE_ADDED
+                        success = successMessage
                     )
                 }
             } catch (e: SQLiteConstraintException) {
@@ -300,7 +458,8 @@ class RecipeViewModel @AssistedInject constructor(
                         _state.update { recipeState ->
                             recipeState.copy(
                                 loading = false,
-                                error = it.message?.ifEmpty { UNKNOWN_ERROR } ?: UNKNOWN_ERROR
+                                error = it.message?.ifEmpty { UNKNOWN_ERROR } ?: UNKNOWN_ERROR,
+                                showDialog = true
                             )
                         }
                     }

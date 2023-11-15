@@ -85,6 +85,7 @@ class GetRecipeUC @Inject constructor(
                 )
             )
         } catch (e: JSONException) {
+            Log.e(TAG, e.message ?: INVALID_RESPONSE)
             throw InvalidResponseException(message = INVALID_RESPONSE)
         }
     }

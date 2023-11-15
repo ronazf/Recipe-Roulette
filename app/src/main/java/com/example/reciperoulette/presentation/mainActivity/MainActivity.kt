@@ -132,6 +132,7 @@ class MainActivity : ComponentActivity() {
                                         state = state,
                                         onRecipeEvent = recipeViewModel::onRecipeEvent,
                                         onRecipeInfoEvent = recipeViewModel::onRecipeInfoEvent,
+                                        onRecipeStepEvent = recipeViewModel::onRecipeStepEvent,
                                         navigateBack = { navController.popBackStack() },
                                         onLoad = { resource, resourceDescription ->
                                             loading = true
@@ -188,6 +189,7 @@ class MainActivity : ComponentActivity() {
                                         state = state,
                                         onRecipeEvent = recipeViewModel::onRecipeEvent,
                                         onRecipeInfoEvent = recipeViewModel::onRecipeInfoEvent,
+                                        onRecipeStepEvent = recipeViewModel::onRecipeStepEvent,
                                         navigateBack = { navController.popBackStack() },
                                         onLoad = { resource, resourceDescription ->
                                             loading = true

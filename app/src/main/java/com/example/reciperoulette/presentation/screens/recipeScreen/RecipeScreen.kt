@@ -2,6 +2,7 @@ package com.example.reciperoulette.presentation.screens.recipeScreen
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -65,12 +71,16 @@ import com.example.reciperoulette.presentation.components.alertDialog.components
 import com.example.reciperoulette.presentation.components.buttons.GenericButton
 import com.example.reciperoulette.presentation.components.dialog.EditableDialog
 import com.example.reciperoulette.presentation.components.dragDropList.DragDropList
+import com.example.reciperoulette.presentation.components.dropdown.DropdownConstants
+import com.example.reciperoulette.presentation.components.dropdown.components.Dropdown
 import com.example.reciperoulette.presentation.components.image.components.BackgroundImage
 import com.example.reciperoulette.presentation.screens.homeScreen.HomeConstants
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeEvent.DragRecipe
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeInfoEvent
 import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeState
+import com.example.reciperoulette.presentation.screens.recipeScreen.userActions.RecipeStepEvent
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -78,6 +88,7 @@ fun RecipeScreen(
     state: RecipeState,
     onRecipeEvent: (RecipeEvent) -> Unit,
     onRecipeInfoEvent: (RecipeInfoEvent) -> Unit,
+    onRecipeStepEvent: (RecipeStepEvent) -> Unit,
     navigateBack: () -> Unit,
     onLoad: (resource: Int, resourceDescription: String) -> Unit,
     onResult: () -> Unit,
@@ -194,75 +205,45 @@ fun RecipeScreen(
         GeneralConstants.UN_BLUR_RADIUS
     }
 
-    if (state.info) {
-        state.editRecipe?.let {
-            var editing by remember { mutableStateOf(false) }
+    state.editStep?.let {
+        RecipeStepEditDialog(
+            state = state,
+            onRecipeEvent = onRecipeEvent,
+            onRecipeStepEvent = onRecipeStepEvent
+        )
+    }
 
-            EditableDialog(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                onEdit = {
-                    if (editing) {
-                        onRecipeEvent(RecipeEvent.SaveEditRecipe)
-                    }
-                    editing = !editing
-                },
-                onCancel = {
-                    editing = false
-                    onRecipeInfoEvent(RecipeInfoEvent.ResetEditRecipe)
-                },
-                onDismiss = { onRecipeEvent(RecipeEvent.DismissInfo) },
-                icon = { modifier ->
-                    Icon(
-                        modifier = modifier,
-                        painter = painterResource(id = R.drawable.info),
-                        contentDescription = stringResource(id = R.string.info)
-                    )
-                },
-                title = { modifier ->
-                    Text(
-                        modifier = modifier,
-                        text = stringResource(id = R.string.show_info),
-                        fontSize = GeneralConstants.BUTTON_FONT_SIZE,
-                        fontFamily = GeneralConstants.FONT_FAMILY
-                    )
-                }
-            ) { modifier ->
-                RecipeInfo(
-                    modifier = modifier,
-                    name = it.recipeName,
-                    ingredients = it.ingredients,
-                    serves = it.serves,
-                    editing = editing,
-                    onRecipeInfoEvent = onRecipeInfoEvent
-                )
-            }
-        }
+    if (state.info) {
+        RecipeInfoDialog(
+            state = state,
+            onRecipeEvent = onRecipeEvent,
+            onRecipeInfoEvent = onRecipeInfoEvent
+        )
     }
 
     if (state.error.isNotEmpty()) {
-        if (state.info) {
-            ShowWarning(context = context, state.error)
-            onRecipeEvent(RecipeEvent.ClearError)
-        } else {
+        if (state.showDialog) {
             ErrorAlertDialog(
                 modifier = Modifier.fillMaxWidth(),
                 onDismiss = { onRecipeEvent(RecipeEvent.ClearError) },
                 errorText = state.error
             )
+        } else {
+            ShowWarning(context = context, state.error)
+            onRecipeEvent(RecipeEvent.ClearError)
         }
     }
 
     if (state.success.isNotEmpty() && !state.loading) {
-        if (state.info) {
-            ShowWarning(context = context, state.success)
-            onRecipeEvent(RecipeEvent.ClearSuccess)
-        } else {
+        if (state.showDialog) {
             SuccessAlertDialog(
                 modifier = Modifier.fillMaxWidth(),
                 onDismiss = { onRecipeEvent(RecipeEvent.ClearSuccess) },
                 successText = state.success
             )
+        } else {
+            ShowWarning(context = context, state.success)
+            onRecipeEvent(RecipeEvent.ClearSuccess)
         }
     }
 }
@@ -333,6 +314,58 @@ fun RecipeDetails(
 }
 
 @Composable
+fun RecipeInfoDialog(
+    state: RecipeState,
+    onRecipeEvent: (RecipeEvent) -> Unit,
+    onRecipeInfoEvent: (RecipeInfoEvent) -> Unit
+) {
+    val context = LocalContext.current
+
+    state.editRecipe?.let {
+        EditableDialog(
+            modifier = Modifier
+                .fillMaxWidth(),
+            editStatus = state.isEditing,
+            onEdit = {
+                if (state.isEditing) {
+                    onRecipeEvent(RecipeEvent.SaveEditRecipeInfo)
+                } else {
+                    onRecipeEvent(RecipeEvent.EditRecipeInfo(true))
+                }
+            },
+            onCancel = {
+                onRecipeEvent(RecipeEvent.EditRecipeInfo(false))
+            },
+            onDismiss = { onRecipeEvent(RecipeEvent.DismissInfo) },
+            icon = { modifier ->
+                Icon(
+                    modifier = modifier,
+                    painter = painterResource(id = R.drawable.info),
+                    contentDescription = stringResource(id = R.string.info)
+                )
+            },
+            title = { modifier ->
+                Text(
+                    modifier = modifier,
+                    text = stringResource(id = R.string.show_info),
+                    fontSize = GeneralConstants.BUTTON_FONT_SIZE,
+                    fontFamily = GeneralConstants.FONT_FAMILY
+                )
+            }
+        ) { modifier ->
+            RecipeInfo(
+                modifier = modifier,
+                name = state.editRecipe.recipeName,
+                ingredients = state.editRecipe.ingredients,
+                serves = state.editRecipe.serves,
+                editing = state.isEditing,
+                onRecipeInfoEvent = onRecipeInfoEvent
+            )
+        }
+    } ?: ShowWarning(context, stringResource(id = R.string.empty_recipe))
+}
+
+@Composable
 fun RecipeInfo(
     modifier: Modifier,
     name: String,
@@ -347,109 +380,137 @@ fun RecipeInfo(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING)
     ) {
-        EditableText(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.TopStart),
-            label = "Name",
-            text = name,
-            placeHolder = "Recipe Name",
-            isEditing = editing,
-            onValueChange = {
-                onRecipeInfoEvent(
-                    RecipeInfoEvent.EditRecipeName(it)
-                )
-            }
-        )
-        EditableText(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.TopStart),
-            label = "Ingredients",
-            isEditing = editing
-        )
-        LazyColumn(
-            modifier = Modifier
-                .heightIn(max = RecipeConstants.MAX_DIALOG_ITEM_HEIGHT)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING)
-        ) {
-            itemsIndexed(ingredients) { index, recipeIngredient ->
-                key(recipeIngredient.id) {
-                    EditableText(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentSize(Alignment.TopStart),
-                        text = recipeIngredient.ingredient,
-                        placeHolder = "Recipe Ingredient",
-                        isEditing = editing,
-                        onValueChange = {
-                            onRecipeInfoEvent(
-                                RecipeInfoEvent.EditIngredient(
-                                    recipeIngredient,
-                                    index
-                                )
-                            )
-                        },
-                        onRemove = {
-                            onRecipeInfoEvent(
-                                RecipeInfoEvent.RemoveIngredient(recipeIngredient.id)
-                            )
-                        }
-                    )
-                }
-            }
-            if (editing) {
-                item {
-                    FilledIconButton(
-                        modifier = Modifier
-                            .padding(
-                                GeneralConstants.IMAGE_TEXT_PADDING
-                            )
-                            .sizeIn(
-                                maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
-                                maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
-                            ),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = colorResource(id = R.color.light_blue_green)
-                        ),
-                        onClick = {
-                            onRecipeInfoEvent(
-                                RecipeInfoEvent.AddIngredient
-                            )
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add),
-                            contentDescription = stringResource(id = R.string.add_icon)
-                        )
-                    }
-                }
-            }
-        }
-        if (serves != null || editing) {
+        key(editing) {
             EditableText(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.TopStart),
-                label = "Serves",
-                text = serves?.toString(),
-                placeHolder = "Serving Number",
+                label = "Name",
+                text = name,
+                placeHolder = "Recipe Name",
                 isEditing = editing,
-                numerical = true,
                 onValueChange = {
                     onRecipeInfoEvent(
-                        RecipeInfoEvent.EditRecipeServing(
-                            if (it.isEmpty()) null else it.toInt()
-                        )
+                        RecipeInfoEvent.EditRecipeName(it)
                     )
-                }
+                },
+                nullable = false
             )
+            EditableText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.TopStart),
+                label = "Ingredients",
+                isEditing = editing
+            )
+            IngredientsEditableList(
+                editing = editing,
+                ingredients = ingredients,
+                onRecipeInfoEvent = onRecipeInfoEvent
+            )
+            if (serves != null || editing) {
+                EditableText(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.TopStart),
+                    label = "Serves",
+                    text = serves?.toString(),
+                    placeHolder = "Serving Number",
+                    isEditing = editing,
+                    numerical = true,
+                    onValueChange = {
+                        onRecipeInfoEvent(
+                            RecipeInfoEvent.EditRecipeServing(
+                                if (it.isEmpty()) null else it.toInt()
+                            )
+                        )
+                    },
+                    nullable = true
+                )
+            }
         }
     }
 }
 
+@Composable
+fun IngredientsEditableList(
+    editing: Boolean,
+    ingredients: List<RecipeIngredient>,
+    onRecipeInfoEvent: (RecipeInfoEvent) -> Unit
+) {
+    val lazyListState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+
+    LazyColumn(
+        modifier = Modifier
+            .heightIn(max = RecipeConstants.MAX_DIALOG_ITEM_HEIGHT)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING),
+        state = lazyListState
+    ) {
+        items(ingredients) { recipeIngredient ->
+            key(recipeIngredient.id) {
+                EditableText(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.TopStart),
+                    text = recipeIngredient.ingredient,
+                    placeHolder = "Recipe Ingredient",
+                    isEditing = editing,
+                    onValueChange = {
+                        onRecipeInfoEvent(
+                            RecipeInfoEvent.EditIngredient(
+                                recipeIngredient.id,
+                                it
+                            )
+                        )
+                    },
+                    onRemove = {
+                        onRecipeInfoEvent(
+                            RecipeInfoEvent.RemoveIngredient(recipeIngredient.id)
+                        )
+                    },
+                    nullable = false
+                )
+            }
+        }
+        if (editing) {
+            item {
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(
+                            GeneralConstants.IMAGE_TEXT_PADDING
+                        )
+                        .sizeIn(
+                            maxHeight = GeneralConstants.MAX_ICON_BUTTON_SIZE,
+                            maxWidth = GeneralConstants.MAX_ICON_BUTTON_SIZE
+                        ),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = colorResource(id = R.color.light_blue_green)
+                    ),
+                    onClick = {
+                        onRecipeInfoEvent(
+                            RecipeInfoEvent.AddIngredient
+                        )
+                        scope.launch {
+                            lazyListState.animateScrollToItem(
+                                ingredients.size
+                            )
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.add),
+                        contentDescription = stringResource(id = R.string.add_icon)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeSteps(
     steps: List<RecipeStep>,
@@ -466,7 +527,7 @@ fun RecipeSteps(
             onRecipeEvent(DragRecipe(begin, end))
         },
         listContent = {
-            item { AddRecipeStep() }
+            item { AddRecipeStep(onRecipeEvent) }
 
             item { Spacer(modifier = Modifier.padding(vertical = RecipeConstants.RECIPE_LIST_SPACER)) }
         }
@@ -500,7 +561,10 @@ fun RecipeSteps(
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = elevation
-            )
+            ),
+            onClick = {
+                onRecipeEvent(RecipeEvent.EditRecipeStep(index, false))
+            }
         ) {
             Row(
                 modifier = Modifier
@@ -552,7 +616,193 @@ fun RecipeSteps(
 }
 
 @Composable
-fun AddRecipeStep() {
+fun RecipeStepEditDialog(
+    state: RecipeState,
+    onRecipeEvent: (RecipeEvent) -> Unit,
+    onRecipeStepEvent: (RecipeStepEvent) -> Unit
+) {
+    val context = LocalContext.current
+
+    state.editRecipe?.let { recipe ->
+        state.editStep?.let {
+            EditableDialog(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                editStatus = state.isEditing,
+                onEdit = {
+                    if (state.isEditing) {
+                        onRecipeEvent(RecipeEvent.SaveEditRecipeStep)
+                    } else {
+                        onRecipeEvent(RecipeEvent.EditRecipeStep(it, true))
+                    }
+                },
+                onCancel = {
+                    if (state.addStep) {
+                        onRecipeEvent(RecipeEvent.DismissStep)
+                    } else {
+                        onRecipeEvent(RecipeEvent.EditRecipeStep(it, false))
+                    }
+                },
+                onDismiss = { onRecipeEvent(RecipeEvent.DismissStep) },
+                icon = { modifier ->
+                    Icon(
+                        modifier = modifier,
+                        painter = painterResource(id = R.drawable.info),
+                        contentDescription = stringResource(id = R.string.info)
+                    )
+                },
+                title = { modifier ->
+                    Text(
+                        modifier = modifier,
+                        text = stringResource(id = R.string.show_info),
+                        fontSize = GeneralConstants.BUTTON_FONT_SIZE,
+                        fontFamily = GeneralConstants.FONT_FAMILY
+                    )
+                }
+            ) { modifier ->
+                RecipeStep(
+                    modifier = modifier,
+                    editing = state.isEditing,
+                    step = state.editStep,
+                    totalSteps = recipe.steps.size,
+                    minutes = recipe.steps[state.editStep].minutes,
+                    instructions = recipe.steps[state.editStep].instructions,
+                    onRecipeStepEvent = onRecipeStepEvent
+                )
+            }
+        } ?: ShowWarning(context, stringResource(id = R.string.empty_step))
+    } ?: ShowWarning(context, stringResource(id = R.string.empty_recipe))
+}
+
+@Composable
+fun RecipeStep(
+    modifier: Modifier,
+    editing: Boolean,
+    step: Int,
+    totalSteps: Int,
+    minutes: Int?,
+    instructions: String,
+    onRecipeStepEvent: (RecipeStepEvent) -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth(RecipeConstants.ROW_ITEM_WIDTH),
+        verticalArrangement = Arrangement.spacedBy(RecipeConstants.ITEM_SPACING)
+    ) {
+        key(editing) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                AddStepDropDown(
+                    editing = editing,
+                    step = step + 1,
+                    totalSteps = totalSteps,
+                    onRecipeStepEvent = onRecipeStepEvent
+                )
+                if (minutes != null || editing) {
+                    EditableText(
+                        modifier = Modifier,
+                        label = "Minutes",
+                        text = minutes?.toString(),
+                        placeHolder = "Time",
+                        isEditing = editing,
+                        numerical = true,
+                        onValueChange = {
+                            onRecipeStepEvent(
+                                RecipeStepEvent.EditMinutes(
+                                    if (it.isEmpty()) null else it.toInt()
+                                )
+                            )
+                        },
+                        nullable = true
+                    )
+                }
+            }
+            EditableText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.TopStart),
+                label = "Instructions",
+                isEditing = editing
+            )
+            EditableText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.TopStart),
+                text = instructions,
+                placeHolder = "Instructions",
+                isEditing = editing,
+                onValueChange = {
+                    onRecipeStepEvent(
+                        RecipeStepEvent.EditInstructions(
+                            it
+                        )
+                    )
+                },
+                nullable = false,
+                singleLine = false
+            )
+        }
+    }
+}
+
+@Composable
+fun AddStepDropDown(
+    editing: Boolean,
+    step: Int,
+    totalSteps: Int,
+    onRecipeStepEvent: (RecipeStepEvent) -> Unit
+) {
+    EditableText(
+        modifier = Modifier
+            .wrapContentSize(Alignment.TopStart),
+        label = "Step",
+        text = step.toString(),
+        isEditing = editing
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = GeneralConstants.IMAGE_TEXT_PADDING
+            ),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Dropdown(
+                modifier = Modifier
+                    .widthIn(max = DropdownConstants.NUMERICAL_ITEM_WIDTH)
+                    .heightIn(max = DropdownConstants.MAX_SMALL_DROPDOWN_HEIGHT),
+                name = step.toString(),
+                color = colorResource(id = R.color.white),
+                shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING),
+                height = GeneralConstants.NUMERICAL_ITEM_SIZE,
+                openStacked = false
+            ) { onSelect ->
+                for (i in 0 until totalSteps) {
+                    DropdownMenuItem(
+                        modifier = Modifier.wrapContentSize(),
+                        text = {
+                            Text(
+                                text = (i + 1).toString(),
+                                textAlign = TextAlign.Center,
+                                fontSize = GeneralConstants.TEXT_FONT_SIZE,
+                                fontFamily = GeneralConstants.FONT_FAMILY
+                            )
+                        },
+                        onClick = {
+                            onRecipeStepEvent(RecipeStepEvent.EditStepNumber(i))
+                            onSelect()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AddRecipeStep(
+    onRecipeEvent: (RecipeEvent) -> Unit
+) {
     val borderColor = colorResource(id = R.color.black)
     val dashedStyle = Stroke(
         width = RecipeConstants.BORDER_WIDTH,
@@ -577,6 +827,9 @@ fun AddRecipeStep() {
                         ),
                         style = dashedStyle
                     )
+                }
+                .clickable {
+                    onRecipeEvent(RecipeEvent.AddRecipeStep)
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -625,6 +878,7 @@ fun DefaultPreview() {
         state = previewState,
         onRecipeEvent = {},
         onRecipeInfoEvent = {},
+        onRecipeStepEvent = {},
         navigateBack = {},
         onLoad = { _, _ -> },
         onResult = {}
