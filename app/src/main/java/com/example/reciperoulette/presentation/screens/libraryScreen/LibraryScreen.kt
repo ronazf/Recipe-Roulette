@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,14 +15,18 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +48,7 @@ import com.example.reciperoulette.presentation.components.SearchTab
 import com.example.reciperoulette.presentation.components.Title
 import com.example.reciperoulette.presentation.components.alertDialog.components.CancelableAlertDialog
 import com.example.reciperoulette.presentation.components.filter.recipeFilter.components.RecipeFilterTab
+import com.example.reciperoulette.presentation.components.image.components.BackgroundImage
 import com.example.reciperoulette.presentation.screens.libraryScreen.userActions.LibraryEvent
 import com.example.reciperoulette.presentation.screens.libraryScreen.userActions.LibraryState
 import com.example.reciperoulette.presentation.screens.libraryScreen.userActions.RecipeFilter
@@ -50,45 +56,75 @@ import com.example.reciperoulette.presentation.screens.libraryScreen.userActions
 @Composable
 fun LibraryScreen(
     state: LibraryState,
-    navigateToRecipe: (Long) -> Unit,
+    navigateToRecipe: (Long?) -> Unit,
     onLibraryEvent: (LibraryEvent) -> Unit
 ) {
-    ConstraintLayout {
-        val (title, searchTab, recipes) = createRefs()
-
-        Title(
-            modifier = Modifier.constrainAs(title) {
-                top.linkTo(parent.top, margin = LibraryConstants.DISPLAYED_MARGIN)
-                absoluteLeft.linkTo(parent.absoluteLeft)
-                absoluteRight.linkTo(parent.absoluteRight)
-            },
-            title = stringResource(id = R.string.library)
-        )
-
-        AddSearchFilter(
-            modifier = Modifier
-                .constrainAs(searchTab) {
-                    top.linkTo(title.bottom, margin = LibraryConstants.DISPLAYED_MARGIN)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                shape = CircleShape,
+                containerColor = colorResource(id = R.color.dark_blue),
+                onClick = {
+                    navigateToRecipe(null)
                 }
-                .padding(horizontal = GeneralConstants.IMAGE_TEXT_PADDING),
-            searchText = state.searchText,
-            filter = state.filter,
-            onLibraryEvent = onLibraryEvent
-        )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.add),
+                    contentDescription = stringResource(id = R.string.add_icon)
+                )
+            }
+        }
+    ) { padding ->
+        ConstraintLayout(
+            modifier = Modifier.padding(padding)
+        ) {
+            val (title, searchTab, recipes, backgroundImage) = createRefs()
 
-        RecipeColumn(
-            modifier = Modifier
-                .constrainAs(recipes) {
-                    top.linkTo(searchTab.bottom, margin = LibraryConstants.DISPLAYED_MARGIN)
+            Title(
+                modifier = Modifier.constrainAs(title) {
+                    top.linkTo(parent.top, margin = LibraryConstants.DISPLAYED_MARGIN)
                     absoluteLeft.linkTo(parent.absoluteLeft)
                     absoluteRight.linkTo(parent.absoluteRight)
                 },
-            recipes = state.recipes,
-            onLibraryEvent = onLibraryEvent,
-            navigateToRecipe = navigateToRecipe
-        )
+                title = stringResource(id = R.string.library)
+            )
+
+            AddSearchFilter(
+                modifier = Modifier
+                    .constrainAs(searchTab) {
+                        top.linkTo(title.bottom, margin = LibraryConstants.DISPLAYED_MARGIN)
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        absoluteRight.linkTo(parent.absoluteRight)
+                    }
+                    .padding(horizontal = GeneralConstants.IMAGE_TEXT_PADDING),
+                searchText = state.searchText,
+                filter = state.filter,
+                onLibraryEvent = onLibraryEvent
+            )
+
+            BackgroundImage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .constrainAs(backgroundImage) {
+                        top.linkTo(searchTab.bottom)
+                        bottom.linkTo(parent.bottom)
+                    },
+                painter = painterResource(id = R.drawable.library_background),
+                description = stringResource(id = R.string.library_background)
+            )
+
+            RecipeColumn(
+                modifier = Modifier
+                    .constrainAs(recipes) {
+                        top.linkTo(searchTab.bottom, margin = LibraryConstants.DISPLAYED_MARGIN)
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        absoluteRight.linkTo(parent.absoluteRight)
+                    },
+                recipes = state.recipes,
+                onLibraryEvent = onLibraryEvent,
+                navigateToRecipe = navigateToRecipe
+            )
+        }
     }
 }
 
@@ -108,7 +144,8 @@ fun AddSearchFilter(
         modifier = modifier.fillMaxWidth()
     ) {
         SearchTab(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             color = colorResource(id = R.color.white),
             shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING),
             placeHolder = stringResource(id = R.string.search_recipe),
@@ -148,20 +185,22 @@ fun RecipeColumn(
         contentPadding = PaddingValues(vertical = GeneralConstants.IMAGE_TEXT_PADDING)
     ) {
         items(recipes) { recipe ->
-            RecipeRow(
-                recipe = recipe,
-                setFavourite = { id ->
-                    onLibraryEvent(
-                        LibraryEvent.SetFavourite(id)
-                    )
-                },
-                removeRecipe = { recipeItem ->
-                    onLibraryEvent(
-                        LibraryEvent.DeleteRecipe(recipeItem)
-                    )
-                },
-                navigateToRecipe = navigateToRecipe
-            )
+            key(recipe.recipeId) {
+                RecipeRow(
+                    recipe = recipe,
+                    setFavourite = { id ->
+                        onLibraryEvent(
+                            LibraryEvent.SetFavourite(id)
+                        )
+                    },
+                    removeRecipe = { recipeItem ->
+                        onLibraryEvent(
+                            LibraryEvent.DeleteRecipe(recipeItem)
+                        )
+                    },
+                    navigateToRecipe = navigateToRecipe
+                )
+            }
         }
 
         item { Spacer(modifier = Modifier.padding(vertical = LibraryConstants.LIBRARY_LIST_SPACER)) }
@@ -200,7 +239,7 @@ fun RecipeRow(
             .fillMaxWidth(),
         shape = RoundedCornerShape(GeneralConstants.CORNER_ROUNDING),
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.white)
+            containerColor = colorResource(id = R.color.light_grey)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = LibraryConstants.LIBRARY_CARD_ELEVATION

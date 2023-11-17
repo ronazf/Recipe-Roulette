@@ -3,6 +3,7 @@ package com.example.reciperoulette.presentation.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentSize
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.text.isDigitsOnly
 import com.example.reciperoulette.R
 import com.example.reciperoulette.presentation.GeneralConstants
+import com.example.reciperoulette.presentation.screens.recipeScreen.RecipeConstants
 
 @Composable
 fun EditableText(
@@ -66,6 +68,7 @@ fun EditableText(
             placeHolder?.let {
                 CustomTextField(
                     modifier = Modifier
+                        .fillMaxWidth(RecipeConstants.ROW_ITEM_WIDTH)
                         .wrapContentSize()
                         .padding(
                             horizontal = GeneralConstants.IMAGE_TEXT_PADDING

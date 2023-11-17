@@ -40,6 +40,8 @@ class RecipeViewModel @AssistedInject constructor(
             "Please make sure recipe name and ingredients are not empty."
         const val INVALID_RECIPE_STEP = "Invalid format. " +
             "Please make sure step instructions are not empty."
+        const val INVALID_RECIPE = "This recipe is Invalid. Make sure the recipe name, " +
+            "ingredients and recipe steps are not empty!"
 
         fun provideRecipeViewModelFactory(
             factory: Factory,
@@ -58,17 +60,16 @@ class RecipeViewModel @AssistedInject constructor(
     val state: StateFlow<RecipeState> = _state
 
     init {
-        require(selectedIngredients != null || recipeId != null) {
-            _state.update {
-                it.copy(
-                    error = UNKNOWN_ERROR,
-                    showDialog = true
-                )
-            }
-        }
         selectedIngredients?.let { getRecipe(selectedIngredients) }
         recipeId?.let {
             getRecipeById(recipeId)
+        }
+        if (selectedIngredients == null && recipeId == null) {
+            _state.update {
+                it.copy(
+                    recipe = Recipe()
+                )
+            }
         }
     }
 
@@ -195,9 +196,6 @@ class RecipeViewModel @AssistedInject constructor(
                     }
                     return
                 }
-                _state.value.recipe?.let {
-                    upsertRecipe(it)
-                }
                 _state.update {
                     it.copy(
                         recipe = it.editRecipe,
@@ -218,9 +216,6 @@ class RecipeViewModel @AssistedInject constructor(
                     }
                     return
                 }
-                _state.value.recipe?.let {
-                    upsertRecipe(it)
-                }
                 _state.update {
                     it.copy(
                         recipe = it.editRecipe,
@@ -236,7 +231,18 @@ class RecipeViewModel @AssistedInject constructor(
             }
 
             RecipeEvent.SaveRecipe -> {
-                _state.value.recipe?.let { upsertRecipe(it) }
+                val recipe = _state.value.editRecipe ?: _state.value.recipe
+                val isValid = validateRecipe(recipe)
+                if (!isValid) {
+                    _state.update {
+                        it.copy(
+                            error = INVALID_RECIPE,
+                            showDialog = true
+                        )
+                    }
+                } else {
+                    recipe?.let { upsertRecipe(it) }
+                }
             }
         }
     }
@@ -391,12 +397,36 @@ class RecipeViewModel @AssistedInject constructor(
         }
     }
 
-    private fun checkRecipeInfoEditValidity(): Boolean {
-        _state.value.editRecipe?.ingredients?.forEach {
-            if (it.ingredient.isBlank()) {
+    private fun validateRecipe(recipe: Recipe?): Boolean {
+        recipe?.let {
+            if (recipe.steps.isEmpty()) {
                 return false
             }
-        }
+
+            if (recipe.ingredients.isEmpty()) {
+                return false
+            }
+
+            if (recipe.recipeName.isBlank()) {
+                return false
+            }
+        } ?: return false
+
+        return true
+    }
+
+    private fun checkRecipeInfoEditValidity(): Boolean {
+        _state.value.editRecipe?.ingredients?.let { ingredientList ->
+            if (ingredientList.isEmpty()) {
+                return false
+            }
+
+            ingredientList.forEach { recipeIngredient ->
+                if (recipeIngredient.ingredient.isBlank()) {
+                    return false
+                }
+            }
+        } ?: return false
 
         if (_state.value.editRecipe?.recipeName?.isBlank() == true) {
             return false
@@ -416,16 +446,22 @@ class RecipeViewModel @AssistedInject constructor(
     }
 
     private fun upsertRecipe(recipe: Recipe) {
-        val successMessage = if (_state.value.info || state.value.editStep != null) {
-            RECIPE_UPDATED
-        } else {
-            RECIPE_ADDED
-        }
         viewModelScope.launch {
             try {
-                recipeUC.upsertRecipe(recipe)
+                val id = recipeUC.upsertRecipe(recipe)
+                val successMessage = if (id != recipe.recipeId) {
+                    RECIPE_ADDED
+                } else {
+                    RECIPE_UPDATED
+                }
                 _state.update { recipeState ->
                     recipeState.copy(
+                        recipe = recipeState.recipe?.copy(
+                            recipeId = id
+                        ),
+                        editRecipe = recipeState.editRecipe?.copy(
+                            recipeId = id
+                        ),
                         success = successMessage
                     )
                 }

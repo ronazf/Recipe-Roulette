@@ -51,9 +51,10 @@
     <string name="loading">Loading icon</string>
     <string name="back">Back icon</string>
     <string name="recipe">Recipe</string>
-    <string name="regenerate_recipe">Regenerate</string>
+    <string name="regenerate_recipe">Regenerate Icon</string>
     <string name="save_recipe">Save</string>
-    <string name="recipe_background">Chef with food image</string>
+    <string name="recipe_background">Chef preparing a meal image</string>
+    <string name="library_background">Books image</string>
     <string name="info">Info icon</string>
     <string name="show_info">Info</string>
     <string name="library">Recipe Library</string>

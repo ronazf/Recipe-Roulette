@@ -60,8 +60,8 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun upsertRecipe(recipe: Recipe) {
-        withContext(ioDispatcher) {
+    override suspend fun upsertRecipe(recipe: Recipe): Long {
+        return withContext(ioDispatcher) {
             recipeDao.upsertRecipe(recipe)
         }
     }

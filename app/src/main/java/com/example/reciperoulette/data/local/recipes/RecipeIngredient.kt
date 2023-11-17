@@ -7,7 +7,7 @@ data class RecipeIngredient(
     constructor(ingredient: String) : this(id = generateId(), ingredient = ingredient)
 
     companion object {
-        private var idCounter: Long = -1L
+        private var idCounter: Long = 0L
 
         private fun generateId(): Long {
             return idCounter++

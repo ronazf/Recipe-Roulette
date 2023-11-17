@@ -20,7 +20,7 @@ import com.example.reciperoulette.presentation.screens.homeScreen.HomeConstants
 
 @Composable
 fun GenericButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     text: String,
     textAlignment: TextAlign = TextAlign.Center,
     containerColor: Color,

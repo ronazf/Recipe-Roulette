@@ -62,7 +62,6 @@ class LibraryViewModel @Inject constructor(
             is LibraryEvent.SearchRecipe -> {
                 _searchText.value = event.searchText
             }
-            is LibraryEvent.SelectRecipe -> TODO()
             LibraryEvent.ClearSearch -> {
                 _searchText.value = ""
             }

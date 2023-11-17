@@ -35,6 +35,10 @@ class Converters {
             .split(SPLIT_SEQUENCE)
             .map {
                 try {
+                    if (it.isBlank()) {
+                        return emptyList()
+                    }
+
                     val obj = JSONObject(it)
                     RecipeIngredient(
                         id = obj.getLong(RecipeIngredientDetail.ID.strName),
@@ -70,6 +74,10 @@ class Converters {
             .split(SPLIT_SEQUENCE)
             .map {
                 try {
+                    if (it.isBlank()) {
+                        return emptyList()
+                    }
+
                     val obj = JSONObject(it)
                     RecipeStep(
                         instructions = obj.getString(RecipeStepDetail.INSTRUCTIONS.strName)

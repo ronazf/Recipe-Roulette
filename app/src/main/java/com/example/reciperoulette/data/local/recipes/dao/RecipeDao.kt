@@ -2,8 +2,9 @@ package com.example.reciperoulette.data.local.recipes.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import com.example.reciperoulette.data.local.recipes.entities.Recipe
 import kotlinx.coroutines.flow.Flow
 
@@ -39,8 +40,8 @@ interface RecipeDao {
     )
     fun setRecipeFavourite(id: Long)
 
-    @Upsert
-    suspend fun upsertRecipe(recipe: Recipe)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertRecipe(recipe: Recipe): Long
 
     @Delete
     suspend fun deleteRecipe(recipe: Recipe)

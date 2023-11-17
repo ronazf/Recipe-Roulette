@@ -156,20 +156,24 @@ class MainActivity : ComponentActivity() {
                                         state = state,
                                         navigateToRecipe = {
                                             navController.navigate(
-                                                route = Screen.RecipeRenderScreen.route + "/$it"
+                                                route = Screen.RecipeRenderScreen.route +
+                                                    ( it?.let { "?recipe_id=$it" } ?: "" )
                                             )
                                         },
                                         onLibraryEvent = libraryViewModel::onLibraryEvent
                                     )
                                 }
                                 composable(
-                                    route = Screen.RecipeRenderScreen.route + "/{recipe_id}",
+                                    route = Screen.RecipeRenderScreen.route + "?recipe_id={recipe_id}",
                                     arguments = listOf(
-                                        navArgument("recipe_id") { type = NavType.LongType }
+                                        navArgument("recipe_id") {
+                                            type = NavType.StringType
+                                            nullable = true
+                                        }
                                     )
                                 ) {
                                     val recipeId = it.arguments
-                                        ?.getLong("recipe_id")
+                                        ?.getString("recipe_id")?.toLong()
 
                                     val factory = EntryPointAccessors.fromActivity(
                                         LocalContext.current as Activity,

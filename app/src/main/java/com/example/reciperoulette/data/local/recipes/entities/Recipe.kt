@@ -12,13 +12,13 @@ data class Recipe(
     @ColumnInfo(name = "recipe_id")
     val recipeId: Long = 0L,
     @ColumnInfo(name = "recipe_name")
-    val recipeName: String,
+    val recipeName: String = "",
     @ColumnInfo(name = "ingredients")
-    val ingredients: List<RecipeIngredient>,
+    val ingredients: List<RecipeIngredient> = emptyList(),
     @ColumnInfo(name = "serves")
     val serves: Int? = null,
     @ColumnInfo(name = "steps")
-    val steps: List<RecipeStep>,
+    val steps: List<RecipeStep> = emptyList(),
     @ColumnInfo(name = "link")
     val link: String? = null,
     @ColumnInfo(name = "favourite")

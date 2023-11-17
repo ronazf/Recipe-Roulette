@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UpsertRecipeUC @Inject constructor(
     private val recipeRepository: RecipeRepository
 ) {
-    suspend operator fun invoke(recipe: Recipe) {
-        recipeRepository.upsertRecipe(recipe)
+    suspend operator fun invoke(recipe: Recipe): Long {
+        return recipeRepository.upsertRecipe(recipe)
     }
 }

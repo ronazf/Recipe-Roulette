@@ -12,7 +12,7 @@ interface RecipeRepository {
 
     suspend fun getRecipeById(id: Long): Recipe
 
-    suspend fun upsertRecipe(recipe: Recipe)
+    suspend fun upsertRecipe(recipe: Recipe): Long
 
     suspend fun deleteRecipe(recipe: Recipe)
 

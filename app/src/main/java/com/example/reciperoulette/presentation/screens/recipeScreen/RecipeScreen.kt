@@ -102,7 +102,7 @@ fun RecipeScreen(
             .pointerInteropFilter { state.loading }
             .blur(blurRadius)
     ) {
-        val (title, backBtn, backgroundImage, recipe, regenerateBtn, saveBtn) = createRefs()
+        val (title, backBtn, backgroundImage, recipe, regenerateBtn) = createRefs()
 
         Title(
             modifier = Modifier.constrainAs(title) {
@@ -118,11 +118,11 @@ fun RecipeScreen(
                 .constrainAs(backBtn) {
                     top.linkTo(
                         parent.top,
-                        margin = RecipeConstants.BACK_BUTTON_TOP_MARGIN
+                        margin = RecipeConstants.BUTTON_TOP_MARGIN
                     )
                     absoluteLeft.linkTo(
                         parent.absoluteLeft,
-                        margin = RecipeConstants.BACK_BUTTON_LEFT_MARGIN
+                        margin = RecipeConstants.BUTTON_SIDE_MARGIN
                     )
                 },
             onClick = { navigateBack() }
@@ -131,6 +131,28 @@ fun RecipeScreen(
                 painter = painterResource(id = R.drawable.back),
                 contentDescription = stringResource(id = R.string.back)
             )
+        }
+
+        if (generated) {
+            IconButton(
+                modifier = Modifier
+                    .constrainAs(regenerateBtn) {
+                        top.linkTo(
+                            parent.top,
+                            margin = RecipeConstants.BUTTON_TOP_MARGIN
+                        )
+                        absoluteRight.linkTo(
+                            parent.absoluteRight,
+                            margin = RecipeConstants.BUTTON_SIDE_MARGIN
+                        )
+                    },
+                onClick = { onRecipeEvent(RecipeEvent.RegenerateRecipe) }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.regenerate),
+                    contentDescription = stringResource(id = R.string.regenerate_recipe)
+                )
+            }
         }
 
         BackgroundImage(
@@ -151,45 +173,10 @@ fun RecipeScreen(
                         top.linkTo(title.bottom)
                         absoluteLeft.linkTo(parent.absoluteLeft)
                         absoluteRight.linkTo(parent.absoluteRight)
-                        bottom.linkTo(regenerateBtn.top, margin = RecipeConstants.DISPLAYED_MARGIN)
                         height = Dimension.fillToConstraints
                     },
                 recipe = it,
                 onRecipeEvent = onRecipeEvent
-            )
-        }
-
-        if (generated) {
-            GenericButton(
-                modifier = Modifier.constrainAs(regenerateBtn) {
-                    bottom.linkTo(saveBtn.top)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                },
-                text = stringResource(id = R.string.regenerate_recipe),
-                containerColor = colorResource(id = R.color.dark_pink),
-                contentColor = colorResource(id = R.color.black),
-                shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
-                fontSize = HomeConstants.BUTTON_FONT_SIZE,
-                onClick = {
-                    onRecipeEvent(RecipeEvent.RegenerateRecipe)
-                }
-            )
-
-            GenericButton(
-                modifier = Modifier.constrainAs(saveBtn) {
-                    bottom.linkTo(parent.bottom, margin = RecipeConstants.DISPLAYED_MARGIN)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                },
-                text = stringResource(id = R.string.save_recipe),
-                containerColor = colorResource(id = R.color.green),
-                contentColor = colorResource(id = R.color.black),
-                shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
-                fontSize = HomeConstants.BUTTON_FONT_SIZE,
-                onClick = {
-                    onRecipeEvent(RecipeEvent.SaveRecipe)
-                }
             )
         }
     }
@@ -529,6 +516,8 @@ fun RecipeSteps(
         listContent = {
             item { AddRecipeStep(onRecipeEvent) }
 
+            item { SaveButton(onRecipeEvent) }
+
             item { Spacer(modifier = Modifier.padding(vertical = RecipeConstants.RECIPE_LIST_SPACER)) }
         }
     ) { index, item, dragging ->
@@ -613,6 +602,22 @@ fun RecipeSteps(
             )
         }
     }
+}
+
+@Composable
+fun SaveButton(
+    onRecipeEvent: (RecipeEvent) -> Unit
+) {
+    GenericButton(
+        text = stringResource(id = R.string.save_recipe),
+        containerColor = colorResource(id = R.color.green),
+        contentColor = colorResource(id = R.color.black),
+        shape = RoundedCornerShape(HomeConstants.CORNER_ROUNDING),
+        fontSize = HomeConstants.BUTTON_FONT_SIZE,
+        onClick = {
+            onRecipeEvent(RecipeEvent.SaveRecipe)
+        }
+    )
 }
 
 @Composable
