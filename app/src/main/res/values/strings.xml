@@ -74,4 +74,6 @@
     <string name="non_empty_field">Field cannot be empty</string>
     <string name="empty_recipe">Recipe is empty</string>
     <string name="empty_step">Recipe step is empty</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
 </resources>
