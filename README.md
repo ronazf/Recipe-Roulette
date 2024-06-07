@@ -1,6 +1,6 @@
 # Recipe Roulette
 
-An android mobile app that uses ChatGPT API to generate recipes based on ingredients. Users can additionally utalize the library feature to save, edit or add recipes.
+An android mobile app that uses OpenAI API to generate recipes based on ingredients. Users can additionally utalize the library feature to save, edit or add recipes.
 
 ## Demo
 
